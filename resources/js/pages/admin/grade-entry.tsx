@@ -214,6 +214,4 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
     );
 }
 
-GradeEntry.layout = {
-    breadcrumbs: [{ title: 'Grade Entry', href: gradeEntry.index() }],
-};
+GradeEntry.emsTitle = 'Grade Entry';

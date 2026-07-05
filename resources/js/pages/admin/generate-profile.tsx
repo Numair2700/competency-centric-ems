@@ -149,6 +149,4 @@ export default function GenerateProfile({ students }: Props) {
     );
 }
 
-GenerateProfile.layout = {
-    breadcrumbs: [{ title: 'Generate Profile', href: profiles.index() }],
-};
+GenerateProfile.emsTitle = 'Generate Profile';

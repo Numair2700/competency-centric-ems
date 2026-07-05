@@ -7,6 +7,80 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Academic Precision design system (Stitch project 7334059518384437874) */
+@theme {
+    --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    --color-ems-primary: #00288e;
+    --color-ems-primary-container: #1e40af;
+    --color-ems-secondary: #515f74;
+    --color-ems-tertiary: #003272;
+    --color-ems-bg: #f7f9fb;
+    --color-ems-surface: #ffffff;
+    --color-ems-surface-low: #f2f4f6;
+    --color-ems-surface-mid: #eceef0;
+    --color-ems-border: #e2e8f0;
+    --color-ems-outline: #757684;
+    --color-ems-on-surface: #191c1e;
+    --color-ems-emerald: #16a34a;
+    --color-ems-amber: #d97706;
+    --color-ems-active: #dbeafe;
+}
+
+@layer utilities {
+    .ems-glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .ems-fade-in-up {
+        animation: ems-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .ems-delay-1 { animation-delay: 0.1s; }
+    .ems-delay-2 { animation-delay: 0.2s; }
+    .ems-delay-3 { animation-delay: 0.3s; }
+    .ems-delay-4 { animation-delay: 0.4s; }
+    .ems-delay-5 { animation-delay: 0.5s; }
+
+    .ems-sidebar-active {
+        position: relative;
+        background: rgba(0, 40, 142, 0.04);
+        color: #00288e;
+        font-weight: 600;
+    }
+
+    .ems-sidebar-active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 20%;
+        height: 60%;
+        width: 3px;
+        background: #00288e;
+        border-radius: 0 4px 4px 0;
+    }
+}
+
+@keyframes ems-fade-in-up {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ems-fade-in-up {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
+
 @theme {
     --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif,

@@ -185,6 +185,4 @@ export default function ProfileView({ profile, derivation }: Props) {
     );
 }
 
-ProfileView.layout = {
-    breadcrumbs: [{ title: 'Generate Profile', href: profiles.index() }],
-};
+ProfileView.emsTitle = 'Competency Profile';
