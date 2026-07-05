@@ -94,6 +94,4 @@ export default function StudentDashboard({ student, latestProfile }: Props) {
     );
 }
 
-StudentDashboard.layout = {
-    breadcrumbs: [{ title: 'Dashboard', href: dashboard() }],
-};
+StudentDashboard.emsTitle = 'Dashboard';

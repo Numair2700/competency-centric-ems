@@ -105,6 +105,4 @@ export default function StudentProfile({ student, profile: competencyProfile }: 
     );
 }
 
-StudentProfile.layout = {
-    breadcrumbs: [{ title: 'My Profile', href: profile() }],
-};
+StudentProfile.emsTitle = 'My Competency Profile';
