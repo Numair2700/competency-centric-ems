@@ -131,7 +131,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
 
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b text-left text-xs font-semibold text-muted-foreground uppercase">
+                                    <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
                                         <th className="pb-2">Unit</th>
                                         <th className="pb-2 text-right">Credits</th>
                                         <th className="pb-2 text-right">Level</th>
@@ -144,7 +144,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
                                         const grade = grades[unit.id] ?? '';
 
                                         return (
-                                            <tr key={unit.id} className="border-b last:border-0">
+                                            <tr key={unit.id} className="border-b border-ems-border/60 last:border-0">
                                                 <td className="py-2">
                                                     <span className="font-medium">
                                                         {unit.unit_code}
@@ -200,7 +200,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
                                 <Button
                                     onClick={save}
                                     disabled={enteredCount === 0 || form.processing}
-                                    className="bg-[#1e40af] hover:bg-[#1e3a8a]"
+                                    className="bg-ems-primary hover:bg-ems-primary-container"
                                 >
                                     {form.processing && <Spinner />}
                                     Save Grades

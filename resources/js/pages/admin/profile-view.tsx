@@ -91,7 +91,7 @@ export default function ProfileView({ profile, derivation }: Props) {
                         <CardContent>
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b text-left text-xs font-semibold text-muted-foreground uppercase">
+                                    <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
                                         <th className="pb-2">SFIA Skill</th>
                                         <th className="pb-2 text-right">Raw</th>
                                         <th className="pb-2 text-right">Normalised</th>
@@ -101,7 +101,7 @@ export default function ProfileView({ profile, derivation }: Props) {
                                     {profile.scores.map((score) => (
                                         <tr
                                             key={score.skill_code}
-                                            className="border-b last:border-0"
+                                            className="border-b border-ems-border/60 last:border-0"
                                         >
                                             <td className="py-2">
                                                 <span className="font-medium">
@@ -114,7 +114,7 @@ export default function ProfileView({ profile, derivation }: Props) {
                                             <td className="py-2 text-right">
                                                 {score.raw_score}
                                             </td>
-                                            <td className="py-2 text-right font-semibold text-[#1e40af]">
+                                            <td className="py-2 text-right font-semibold text-ems-primary">
                                                 {score.normalised_score}%
                                             </td>
                                         </tr>
@@ -143,7 +143,7 @@ export default function ProfileView({ profile, derivation }: Props) {
                                 </h3>
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="border-b text-left text-xs font-semibold text-muted-foreground uppercase">
+                                        <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
                                             <th className="pb-1">Unit</th>
                                             <th className="pb-1 text-right">Credits</th>
                                             <th className="pb-1 text-right">Grade</th>
@@ -155,7 +155,7 @@ export default function ProfileView({ profile, derivation }: Props) {
                                         {skill.units.map((unit) => (
                                             <tr
                                                 key={`${skill.skill_code}-${unit.unit_code}`}
-                                                className="border-b last:border-0"
+                                                className="border-b border-ems-border/60 last:border-0"
                                             >
                                                 <td className="py-1.5">
                                                     {unit.unit_code} {unit.unit_title}
