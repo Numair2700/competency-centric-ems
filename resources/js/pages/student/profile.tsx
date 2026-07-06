@@ -23,14 +23,11 @@ export default function StudentProfile({ student, profile: competencyProfile }: 
     return (
         <>
             <Head title="My Competency Profile" />
-            <div className="flex flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-semibold">SFIA Competency Profile</h1>
-                        <p className="text-sm text-muted-foreground">
-                            {student.name} · {student.student_number} · {student.programme}
-                        </p>
-                    </div>
+                    <p className="text-sm text-ems-secondary">
+                        {student.name} · {student.student_number} · {student.programme}
+                    </p>
                     <Badge variant="secondary">Read-only for Students</Badge>
                 </div>
 

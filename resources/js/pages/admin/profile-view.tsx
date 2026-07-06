@@ -39,7 +39,7 @@ export default function ProfileView({ profile, derivation }: Props) {
     return (
         <>
             <Head title={`Profile — ${profile.student.name}`} />
-            <div className="flex flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-xl font-semibold">

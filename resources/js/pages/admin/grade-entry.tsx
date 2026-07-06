@@ -82,13 +82,11 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
     return (
         <>
             <Head title="Grade Entry" />
-            <div className="flex flex-col gap-6 p-4">
-                <div>
-                    <h1 className="text-xl font-semibold">Grade Entry</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Enter student grades per academic unit (FR7).
-                    </p>
-                </div>
+            <div className="flex flex-col gap-6">
+                <p className="text-sm text-ems-secondary">
+                    Enter student grades per academic unit (FR7). Weights apply
+                    automatically on save.
+                </p>
 
                 <Card className="max-w-md">
                     <CardContent className="pt-6">
