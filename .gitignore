@@ -27,3 +27,8 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Dissertation documents and generated artifacts (not application code)
+*.docx
+/Competency_Centric_EMS_MASTER_CONTEXT.md
+/graphify-out
