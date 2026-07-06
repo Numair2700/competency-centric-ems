@@ -66,7 +66,7 @@ export default function StudentProfile({ student, profile: competencyProfile }: 
                             <CardContent>
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="border-b text-left text-xs font-semibold text-muted-foreground uppercase">
+                                        <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
                                             <th className="pb-2">SFIA Skill</th>
                                             <th className="pb-2 text-right">Raw Score</th>
                                             <th className="pb-2 text-right">Normalised</th>
@@ -76,7 +76,7 @@ export default function StudentProfile({ student, profile: competencyProfile }: 
                                         {competencyProfile.scores.map((score) => (
                                             <tr
                                                 key={score.skill_code}
-                                                className="border-b last:border-0"
+                                                className="border-b border-ems-border/60 last:border-0"
                                             >
                                                 <td className="py-2">
                                                     <span className="font-medium">
@@ -89,7 +89,7 @@ export default function StudentProfile({ student, profile: competencyProfile }: 
                                                 <td className="py-2 text-right">
                                                     {score.raw_score}
                                                 </td>
-                                                <td className="py-2 text-right font-semibold text-[#1e40af]">
+                                                <td className="py-2 text-right font-semibold text-ems-primary">
                                                     {score.normalised_score}%
                                                 </td>
                                             </tr>

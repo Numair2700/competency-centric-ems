@@ -87,7 +87,7 @@ export default function GenerateProfile({ students }: Props) {
                             </div>
 
                             {selected && (
-                                <div className="grid gap-2 rounded-lg border p-4 text-sm sm:grid-cols-2">
+                                <div className="grid gap-2 rounded-lg border border-ems-border p-4 text-sm sm:grid-cols-2">
                                     <div>
                                         <p className="text-xs text-muted-foreground uppercase">
                                             Programme
@@ -135,7 +135,7 @@ export default function GenerateProfile({ students }: Props) {
                                 <Button
                                     type="submit"
                                     disabled={data.student_id === '' || processing}
-                                    className="bg-[#1e40af] hover:bg-[#1e3a8a]"
+                                    className="bg-ems-primary hover:bg-ems-primary-container"
                                 >
                                     {processing && <Spinner />}
                                     Generate Profile

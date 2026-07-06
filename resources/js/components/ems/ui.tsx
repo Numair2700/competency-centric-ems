@@ -48,6 +48,12 @@ export function StatCard({
 }
 
 /** Table shell matching the design: tracked uppercase headers, generous cells. */
+const alignClasses = {
+    left: 'text-left',
+    right: 'text-right',
+    center: 'text-center',
+} as const;
+
 export function EmsTable({
     headers,
     children,
@@ -55,7 +61,7 @@ export function EmsTable({
 }: {
     headers: string[];
     children: ReactNode;
-    align?: ('left' | 'right' | 'center')[];
+    align?: (keyof typeof alignClasses)[];
 }) {
     return (
         <div className="overflow-x-auto">
@@ -65,7 +71,7 @@ export function EmsTable({
                         {headers.map((header, index) => (
                             <th
                                 key={header}
-                                className={`px-6 py-4 text-xs font-semibold text-ems-secondary/60 uppercase text-${align[index] ?? 'left'}`}
+                                className={`px-6 py-4 text-xs font-semibold text-ems-secondary/60 uppercase ${alignClasses[align[index] ?? 'left']}`}
                             >
                                 {header}
                             </th>
