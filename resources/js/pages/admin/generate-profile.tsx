@@ -49,13 +49,10 @@ export default function GenerateProfile({ students }: Props) {
     return (
         <>
             <Head title="Generate Profile" />
-            <div className="flex flex-col gap-6 p-4">
-                <div>
-                    <h1 className="text-xl font-semibold">Generate Competency Profile</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Run the calculation engine for a selected student (FR11).
-                    </p>
-                </div>
+            <div className="flex flex-col gap-6">
+                <p className="text-sm text-ems-secondary">
+                    Run the calculation engine for a selected student (FR11).
+                </p>
 
                 <Card className="max-w-2xl">
                     <CardHeader>

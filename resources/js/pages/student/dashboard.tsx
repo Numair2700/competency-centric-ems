@@ -25,7 +25,7 @@ export default function StudentDashboard({ student, latestProfile }: Props) {
     return (
         <>
             <Head title="Dashboard" />
-            <div className="flex flex-col gap-6 p-4">
+            <div className="flex flex-col gap-6">
                 {student === null ? (
                     <Card>
                         <CardContent className="py-8 text-center text-muted-foreground">
