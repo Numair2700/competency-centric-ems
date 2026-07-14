@@ -3,14 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\Pathway;
-use App\Models\Student;
-use App\Models\User;
+use App\Models\Programme;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Student>
+ * @extends Factory<Pathway>
  */
-class StudentFactory extends Factory
+class PathwayFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -20,9 +19,9 @@ class StudentFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
-            'pathway_id' => Pathway::factory(),
-            'student_number' => 'S'.fake()->unique()->numerify('#######'),
+            'programme_id' => Programme::factory(),
+            'name' => 'Software Engineering',
+            'level' => 'HND',
         ];
     }
 }

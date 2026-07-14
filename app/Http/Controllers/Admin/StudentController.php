@@ -19,7 +19,7 @@ class StudentController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/students', [
-            'students' => Student::with('user:id,name,email')
+            'students' => Student::with(['user:id,name,email', 'pathway:id,name,level'])
                 ->withCount('gradeRecords')
                 ->orderBy('student_number')
                 ->get(),
@@ -41,8 +41,7 @@ class StudentController extends Controller
             Student::create([
                 'user_id' => $user->id,
                 'student_number' => $request->validated('student_number'),
-                'programme' => $request->validated('programme'),
-                'level' => $request->validated('level'),
+                'pathway_id' => $request->validated('pathway_id'),
             ]);
         });
 
@@ -65,7 +64,7 @@ class StudentController extends Controller
 
             $student->user->save();
 
-            $student->update($request->safe()->only(['student_number', 'programme', 'level']));
+            $student->update($request->safe()->only(['student_number', 'pathway_id']));
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Student updated.')]);

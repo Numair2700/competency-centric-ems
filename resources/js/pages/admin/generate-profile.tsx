@@ -19,9 +19,10 @@ type StudentOption = {
     id: number;
     name: string;
     student_number: string;
-    programme: string;
+    pathway: string;
     level: string;
     graded_units: number;
+    total_units: number;
     latest_profile_at: string | null;
 };
 
@@ -38,8 +39,7 @@ export default function GenerateProfile({ students }: Props) {
         (student) => String(student.id) === data.student_id,
     );
 
-    const totalUnits = 15;
-    const incomplete = selected !== undefined && selected.graded_units < totalUnits;
+    const incomplete = selected !== undefined && selected.graded_units < selected.total_units;
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
@@ -87,9 +87,9 @@ export default function GenerateProfile({ students }: Props) {
                                 <div className="grid gap-2 rounded-lg border border-ems-border p-4 text-sm sm:grid-cols-2">
                                     <div>
                                         <p className="text-xs text-muted-foreground uppercase">
-                                            Programme
+                                            Pathway
                                         </p>
-                                        <p className="font-medium">{selected.programme}</p>
+                                        <p className="font-medium">{selected.pathway}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground uppercase">
@@ -102,7 +102,7 @@ export default function GenerateProfile({ students }: Props) {
                                             Units Graded
                                         </p>
                                         <p className="font-medium">
-                                            {selected.graded_units} of ~{totalUnits}
+                                            {selected.graded_units} of {selected.total_units}
                                         </p>
                                     </div>
                                     <div>
@@ -121,7 +121,7 @@ export default function GenerateProfile({ students }: Props) {
                                     <AlertTriangle className="size-4" />
                                     <AlertDescription>
                                         This student has incomplete grade records (
-                                        {selected.graded_units} of ~{totalUnits} units
+                                        {selected.graded_units} of {selected.total_units} units
                                         graded). The generated profile may not reflect their
                                         full competency.
                                     </AlertDescription>

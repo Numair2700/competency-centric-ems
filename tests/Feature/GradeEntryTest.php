@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AcademicUnit;
+use App\Models\Pathway;
 use App\Models\Student;
 use App\Models\User;
 
@@ -40,6 +41,42 @@ test('invalid grade values are rejected (FR16)', function () {
 
     $response->assertSessionHasErrors('grades.0.grade');
     $this->assertDatabaseCount('grade_records', 0);
+});
+
+test('grade entry only offers units on the student\'s own pathway', function () {
+    $admin = User::factory()->admin()->create();
+
+    $pathway = Pathway::factory()->create();
+    $otherPathway = Pathway::factory()->create();
+
+    $ownUnit = AcademicUnit::factory()->create();
+    $otherUnit = AcademicUnit::factory()->create();
+
+    $pathway->academicUnits()->attach($ownUnit->id, ['unit_type' => 'core']);
+    $otherPathway->academicUnits()->attach($otherUnit->id, ['unit_type' => 'core']);
+
+    $student = Student::factory()->create(['pathway_id' => $pathway->id]);
+
+    $initial = $this->actingAs($admin)->get(route('admin.grade-entry.index'));
+    preg_match('/data-page="app" type="application\/json">(.+?)<\/script>/', $initial->getContent(), $matches);
+    $page = json_decode($matches[1], true);
+    $version = $page['version'];
+
+    $response = $this->actingAs($admin)->get(
+        route('admin.grade-entry.index', ['student_id' => $student->id]),
+        [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => $version,
+            'X-Inertia-Partial-Data' => 'units',
+            'X-Inertia-Partial-Component' => 'admin/grade-entry',
+        ],
+    );
+
+    $response->assertOk();
+    $units = json_decode($response->getContent(), true)['props']['units'];
+
+    expect($units)->toHaveCount(1)
+        ->and($units[0]['id'])->toBe($ownUnit->id);
 });
 
 test('saving a grade twice updates the existing record (FR15)', function () {
