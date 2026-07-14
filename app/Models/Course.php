@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\PathwayFactory;
+use Database\Factories\CourseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $level
  */
 #[Fillable(['programme_id', 'name', 'level'])]
-class Pathway extends Model
+class Course extends Model
 {
-    /** @use HasFactory<PathwayFactory> */
+    /** @use HasFactory<CourseFactory> */
     use HasFactory;
 
     public function programme(): BelongsTo
@@ -34,7 +34,7 @@ class Pathway extends Model
 
     public function academicUnits(): BelongsToMany
     {
-        return $this->belongsToMany(AcademicUnit::class, 'pathway_units', 'pathway_id', 'unit_id')
+        return $this->belongsToMany(AcademicUnit::class, 'course_units', 'course_id', 'unit_id')
             ->withPivot('unit_type')
             ->withTimestamps();
     }

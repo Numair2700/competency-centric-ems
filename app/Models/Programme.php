@@ -18,8 +18,8 @@ class Programme extends Model
     /** @use HasFactory<ProgrammeFactory> */
     use HasFactory;
 
-    public function pathways(): HasMany
+    public function courses(): HasMany
     {
-        return $this->hasMany(Pathway::class);
+        return $this->hasMany(Course::class);
     }
 }

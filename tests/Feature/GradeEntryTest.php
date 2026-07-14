@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AcademicUnit;
-use App\Models\Pathway;
+use App\Models\Course;
 use App\Models\Student;
 use App\Models\User;
 
@@ -43,19 +43,19 @@ test('invalid grade values are rejected (FR16)', function () {
     $this->assertDatabaseCount('grade_records', 0);
 });
 
-test('grade entry only offers units on the student\'s own pathway', function () {
+test('grade entry only offers units on the student\'s own course', function () {
     $admin = User::factory()->admin()->create();
 
-    $pathway = Pathway::factory()->create();
-    $otherPathway = Pathway::factory()->create();
+    $course = Course::factory()->create();
+    $otherCourse = Course::factory()->create();
 
     $ownUnit = AcademicUnit::factory()->create();
     $otherUnit = AcademicUnit::factory()->create();
 
-    $pathway->academicUnits()->attach($ownUnit->id, ['unit_type' => 'core']);
-    $otherPathway->academicUnits()->attach($otherUnit->id, ['unit_type' => 'core']);
+    $course->academicUnits()->attach($ownUnit->id, ['unit_type' => 'core']);
+    $otherCourse->academicUnits()->attach($otherUnit->id, ['unit_type' => 'core']);
 
-    $student = Student::factory()->create(['pathway_id' => $pathway->id]);
+    $student = Student::factory()->create(['course_id' => $course->id]);
 
     $initial = $this->actingAs($admin)->get(route('admin.grade-entry.index'));
     preg_match('/data-page="app" type="application\/json">(.+?)<\/script>/', $initial->getContent(), $matches);

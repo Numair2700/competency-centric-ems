@@ -10,19 +10,19 @@ return new class extends Migration
      * Run the migrations.
      *
      * Junction table for the real Pearson many-to-many: a unit (core units
-     * especially) can belong to several pathways, and a pathway is made up
+     * especially) can belong to several courses, and a course is made up
      * of many units (master context §22.1a).
      */
     public function up(): void
     {
-        Schema::create('pathway_units', function (Blueprint $table) {
+        Schema::create('course_units', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pathway_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('course_id')->constrained()->cascadeOnDelete();
             $table->foreignId('unit_id')->constrained('academic_units')->cascadeOnDelete();
             $table->enum('unit_type', ['core', 'specialist', 'optional']);
             $table->timestamps();
 
-            $table->unique(['pathway_id', 'unit_id']);
+            $table->unique(['course_id', 'unit_id']);
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pathway_units');
+        Schema::dropIfExists('course_units');
     }
 };

@@ -14,7 +14,7 @@ class CompetencyProfileController extends Controller
 {
     public function show(Request $request): Response
     {
-        $student = $request->user()->student?->load('pathway');
+        $student = $request->user()->student?->load('course');
 
         abort_unless($student !== null, 404);
 
@@ -27,8 +27,8 @@ class CompetencyProfileController extends Controller
             'student' => [
                 'name' => $request->user()->name,
                 'student_number' => $student->student_number,
-                'pathway' => $student->pathway->name,
-                'level' => $student->pathway->level,
+                'course' => $student->course->name,
+                'level' => $student->course->level,
             ],
             'profile' => $profile ? [
                 'generated_at' => $profile->generated_at->format('d M Y, H:i'),

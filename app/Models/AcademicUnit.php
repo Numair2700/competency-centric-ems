@@ -32,9 +32,9 @@ class AcademicUnit extends Model
         return $this->hasMany(GradeRecord::class, 'unit_id');
     }
 
-    public function pathways(): BelongsToMany
+    public function courses(): BelongsToMany
     {
-        return $this->belongsToMany(Pathway::class, 'pathway_units', 'unit_id', 'pathway_id')
+        return $this->belongsToMany(Course::class, 'course_units', 'unit_id', 'course_id')
             ->withPivot('unit_type')
             ->withTimestamps();
     }

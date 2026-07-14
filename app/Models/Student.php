@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int $id
  * @property int $user_id
- * @property int $pathway_id
+ * @property int $course_id
  * @property string $student_number
  */
-#[Fillable(['user_id', 'pathway_id', 'student_number'])]
+#[Fillable(['user_id', 'course_id', 'student_number'])]
 class Student extends Model
 {
     /** @use HasFactory<StudentFactory> */
@@ -26,9 +26,9 @@ class Student extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function pathway(): BelongsTo
+    public function course(): BelongsTo
     {
-        return $this->belongsTo(Pathway::class);
+        return $this->belongsTo(Course::class);
     }
 
     public function gradeRecords(): HasMany
