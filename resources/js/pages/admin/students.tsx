@@ -16,7 +16,7 @@ export default function Students({ students: studentList }: Props) {
                     </p>
                 </div>
                 <EmsTable
-                    headers={['Student Number', 'Name', 'Email', 'Pathway', 'Level', 'Units Graded']}
+                    headers={['Student Number', 'Name', 'Email', 'Course', 'Level', 'Units Graded']}
                     align={['left', 'left', 'left', 'left', 'center', 'right']}
                 >
                     {studentList.map((student) => (
@@ -24,9 +24,9 @@ export default function Students({ students: studentList }: Props) {
                             <td className="px-6 py-4 text-sm font-semibold">{student.student_number}</td>
                             <td className="px-6 py-4 text-sm">{student.user?.name}</td>
                             <td className="px-6 py-4 text-sm text-ems-secondary/80">{student.user?.email}</td>
-                            <td className="px-6 py-4 text-sm text-ems-secondary/80">{student.pathway?.name}</td>
+                            <td className="px-6 py-4 text-sm text-ems-secondary/80">{student.course?.name}</td>
                             <td className="px-6 py-4 text-center">
-                                <EmsPill>{student.pathway?.level}</EmsPill>
+                                <EmsPill>{student.course?.level}</EmsPill>
                             </td>
                             <td className="px-6 py-4 text-right text-sm">{student.grade_records_count}</td>
                         </tr>

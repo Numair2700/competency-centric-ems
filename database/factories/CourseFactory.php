@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Pathway;
+use App\Models\Course;
 use App\Models\Programme;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Pathway>
+ * @extends Factory<Course>
  */
-class PathwayFactory extends Factory
+class CourseFactory extends Factory
 {
     /**
      * Define the model's default state.

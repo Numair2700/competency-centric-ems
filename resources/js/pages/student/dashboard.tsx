@@ -11,7 +11,7 @@ type Props = {
     student: {
         name: string;
         student_number: string;
-        pathway: string;
+        course: string;
         level: string;
     } | null;
     latestProfile: {
@@ -51,9 +51,9 @@ export default function StudentDashboard({ student, latestProfile }: Props) {
                                 </div>
                                 <div>
                                     <p className="text-xs text-muted-foreground uppercase">
-                                        Pathway
+                                        Course
                                     </p>
-                                    <p className="font-medium">{student.pathway}</p>
+                                    <p className="font-medium">{student.course}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-muted-foreground uppercase">

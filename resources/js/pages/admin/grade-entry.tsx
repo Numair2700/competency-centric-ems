@@ -22,7 +22,7 @@ type StudentOption = {
     id: number;
     student_number: string;
     user: { id: number; name: string };
-    pathway: { id: number; name: string };
+    course: { id: number; name: string };
 };
 
 type ExistingGrade = {
@@ -104,7 +104,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
                                             value={String(student.id)}
                                         >
                                             {student.student_number} — {student.user.name} (
-                                            {student.pathway.name})
+                                            {student.course.name})
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

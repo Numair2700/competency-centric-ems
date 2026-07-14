@@ -19,9 +19,9 @@ class GradeEntryController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/grade-entry', [
-            'students' => Student::with(['user:id,name', 'pathway:id,name'])
+            'students' => Student::with(['user:id,name', 'course:id,name'])
                 ->orderBy('student_number')
-                ->get(['id', 'user_id', 'pathway_id', 'student_number']),
+                ->get(['id', 'user_id', 'course_id', 'student_number']),
             'units' => Inertia::optional(
                 fn () => $this->unitsForStudent(request('student_id')),
             ),
@@ -55,7 +55,7 @@ class GradeEntryController extends Controller
     }
 
     /**
-     * Only the units on the student's own pathway are gradeable (FR7)
+     * Only the units on the student's own course are gradeable (FR7)
      * — this is what stops every student's Grade Entry page from
      * listing all 54 units regardless of what they actually study.
      */
@@ -65,13 +65,13 @@ class GradeEntryController extends Controller
             return [];
         }
 
-        $student = Student::with('pathway.academicUnits')->find($studentId);
+        $student = Student::with('course.academicUnits')->find($studentId);
 
         if ($student === null) {
             return [];
         }
 
-        return $student->pathway->academicUnits
+        return $student->course->academicUnits
             ->sortBy('unit_code')
             ->values()
             ->map(fn ($unit) => [

@@ -9,7 +9,7 @@ type Props = {
     student: {
         name: string;
         student_number: string;
-        pathway: string;
+        course: string;
         level: string;
     };
     profile: {
@@ -26,7 +26,7 @@ export default function StudentProfile({ student, profile: competencyProfile }: 
             <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-ems-secondary">
-                        {student.name} · {student.student_number} · {student.pathway}
+                        {student.name} · {student.student_number} · {student.course}
                     </p>
                     <Badge variant="secondary">Read-only for Students</Badge>
                 </div>

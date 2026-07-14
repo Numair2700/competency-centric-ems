@@ -26,7 +26,7 @@ type Props = {
             id: number;
             name: string;
             student_number: string;
-            pathway: string;
+            course: string;
         };
         scores: CompetencyScoreRow[];
     };
@@ -49,7 +49,7 @@ export default function ProfileView({ profile, derivation }: Props) {
                             </span>
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {profile.student.pathway} · Generated {profile.generated_at}
+                            {profile.student.course} · Generated {profile.generated_at}
                         </p>
                     </div>
                     <div className="flex items-center gap-3">

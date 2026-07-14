@@ -19,7 +19,7 @@ type StudentOption = {
     id: number;
     name: string;
     student_number: string;
-    pathway: string;
+    course: string;
     level: string;
     graded_units: number;
     total_units: number;
@@ -87,9 +87,9 @@ export default function GenerateProfile({ students }: Props) {
                                 <div className="grid gap-2 rounded-lg border border-ems-border p-4 text-sm sm:grid-cols-2">
                                     <div>
                                         <p className="text-xs text-muted-foreground uppercase">
-                                            Pathway
+                                            Course
                                         </p>
-                                        <p className="font-medium">{selected.pathway}</p>
+                                        <p className="font-medium">{selected.course}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground uppercase">

@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\AcademicUnit;
+use App\Models\Course;
 use App\Models\GradeRecord;
-use App\Models\Pathway;
 use App\Models\Programme;
 use App\Models\SfiaLevel;
 use App\Models\SfiaSkill;
@@ -134,22 +134,22 @@ class DatabaseSeeder extends Seeder
     ];
 
     /**
-     * Units shared by every pathway (master context §22.1a): Units 1-6 are
-     * core at Level 4 across all pathways, Units 16-17 are core at Level 5.
+     * Units shared by every course (master context §22.1a): Units 1-6 are
+     * core at Level 4 across all courses, Units 16-17 are core at Level 5.
      *
      * @var array<int, int>
      */
     private const CORE_UNITS = [1, 2, 3, 4, 5, 6, 16, 17];
 
     /**
-     * Pathway definitions (Pearson, 2023, Issue 4, §22.1a): each pathway's
+     * Course definitions (Pearson, 2023, Issue 4, §22.1a): each course's
      * mandatory Level 4 specialist unit, mandatory Level 5 specialist group,
-     * and the optional-bank units offered on that pathway. Core units
-     * (self::CORE_UNITS) are attached to every pathway automatically.
+     * and the optional-bank units offered on that course. Core units
+     * (self::CORE_UNITS) are attached to every course automatically.
      *
      * @var array<string, array{specialist_l4: int, specialist_l5: array<int, int>, optional: array<int, int>}>
      */
-    private const PATHWAYS = [
+    private const COURSES = [
         'General' => ['specialist_l4' => 7, 'specialist_l5' => [], 'optional' => [35, 37, 40, 50]],
         'Software Engineering' => ['specialist_l4' => 7, 'specialist_l5' => [18, 19, 20], 'optional' => [13, 14, 15, 35, 36, 37, 49, 50, 54]],
         'Application Development & Testing' => ['specialist_l4' => 7, 'specialist_l5' => [21, 22, 23], 'optional' => [13]],
@@ -159,21 +159,21 @@ class DatabaseSeeder extends Seeder
     ];
 
     /**
-     * Simulated students (FR19): unit sets follow real Pearson pathway rules
-     * and stay within their pathway's available units. Students 5 and 6 are
+     * Simulated students (FR19): unit sets follow real Pearson course rules
+     * and stay within their course's available units. Students 5 and 6 are
      * deliberately incomplete to exercise the incomplete-grade warning.
      *
-     * @var array<int, array{name: string, pathway: string, units: array<int, int>, skip_last: int}>
+     * @var array<int, array{name: string, course: string, units: array<int, int>, skip_last: int}>
      */
     private const SIMULATED_STUDENTS = [
-        ['name' => 'Aisha Rahman', 'pathway' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 13, 16, 17, 18, 19, 20, 35, 36], 'skip_last' => 0],
-        ['name' => 'Omar Haddad', 'pathway' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 14, 16, 17, 18, 19, 20, 35, 49], 'skip_last' => 0],
-        ['name' => 'Layla Nasser', 'pathway' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 13, 16, 17, 18, 19, 20, 36, 54], 'skip_last' => 0],
-        ['name' => 'Yousef Karim', 'pathway' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 15, 16, 17, 18, 19, 20, 37, 50], 'skip_last' => 0],
-        ['name' => 'Fatima Zahra', 'pathway' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 13, 16, 17, 18, 19, 20, 35, 36], 'skip_last' => 4],
-        ['name' => 'Hassan Ali', 'pathway' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 14, 16, 17, 18, 19, 20, 35, 49], 'skip_last' => 3],
-        ['name' => 'Noor Saleh', 'pathway' => 'Cyber Security', 'units' => [1, 2, 3, 4, 5, 6, 10, 15, 16, 17, 30, 31, 32, 39, 47], 'skip_last' => 0],
-        ['name' => 'Zainab Idris', 'pathway' => 'Data Analytics', 'units' => [1, 2, 3, 4, 5, 6, 8, 14, 16, 17, 24, 25, 26, 33, 34], 'skip_last' => 0],
+        ['name' => 'Aisha Rahman', 'course' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 13, 16, 17, 18, 19, 20, 35, 36], 'skip_last' => 0],
+        ['name' => 'Omar Haddad', 'course' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 14, 16, 17, 18, 19, 20, 35, 49], 'skip_last' => 0],
+        ['name' => 'Layla Nasser', 'course' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 13, 16, 17, 18, 19, 20, 36, 54], 'skip_last' => 0],
+        ['name' => 'Yousef Karim', 'course' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 15, 16, 17, 18, 19, 20, 37, 50], 'skip_last' => 0],
+        ['name' => 'Fatima Zahra', 'course' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 13, 16, 17, 18, 19, 20, 35, 36], 'skip_last' => 4],
+        ['name' => 'Hassan Ali', 'course' => 'Software Engineering', 'units' => [1, 2, 3, 4, 5, 6, 7, 14, 16, 17, 18, 19, 20, 35, 49], 'skip_last' => 3],
+        ['name' => 'Noor Saleh', 'course' => 'Cyber Security', 'units' => [1, 2, 3, 4, 5, 6, 10, 15, 16, 17, 30, 31, 32, 39, 47], 'skip_last' => 0],
+        ['name' => 'Zainab Idris', 'course' => 'Data Analytics', 'units' => [1, 2, 3, 4, 5, 6, 8, 14, 16, 17, 24, 25, 26, 33, 34], 'skip_last' => 0],
     ];
 
     /**
@@ -183,9 +183,9 @@ class DatabaseSeeder extends Seeder
     {
         $skills = $this->seedSfiaSkills();
         $units = $this->seedUnitsAndMappings($skills);
-        $pathways = $this->seedProgrammeAndPathways($units);
+        $courses = $this->seedProgrammeAndCourses($units);
         $this->seedAdmin();
-        $this->seedStudentsWithGrades($units, $pathways);
+        $this->seedStudentsWithGrades($units, $courses);
     }
 
     /**
@@ -241,44 +241,44 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * Build the real Programme → Pathway → Unit structure (master context
-     * §22.1a) so each pathway only offers the units it actually teaches.
+     * Build the real Programme → Course → Unit structure (master context
+     * §22.1a) so each course only offers the units it actually teaches.
      *
      * @param  array<int, AcademicUnit>  $units
-     * @return array<string, Pathway>
+     * @return array<string, Course>
      */
-    private function seedProgrammeAndPathways(array $units): array
+    private function seedProgrammeAndCourses(array $units): array
     {
         $programme = Programme::create([
             'name' => 'Pearson BTEC Higher Nationals in Computing',
         ]);
 
-        $pathways = [];
+        $courses = [];
 
-        foreach (self::PATHWAYS as $name => $definition) {
-            $pathway = Pathway::create([
+        foreach (self::COURSES as $name => $definition) {
+            $course = Course::create([
                 'programme_id' => $programme->id,
                 'name' => $name,
                 'level' => 'HND',
             ]);
-            $pathways[$name] = $pathway;
+            $courses[$name] = $course;
 
             foreach (self::CORE_UNITS as $unitNumber) {
-                $pathway->academicUnits()->attach($units[$unitNumber]->id, ['unit_type' => 'core']);
+                $course->academicUnits()->attach($units[$unitNumber]->id, ['unit_type' => 'core']);
             }
 
-            $pathway->academicUnits()->attach($units[$definition['specialist_l4']]->id, ['unit_type' => 'specialist']);
+            $course->academicUnits()->attach($units[$definition['specialist_l4']]->id, ['unit_type' => 'specialist']);
 
             foreach ($definition['specialist_l5'] as $unitNumber) {
-                $pathway->academicUnits()->attach($units[$unitNumber]->id, ['unit_type' => 'specialist']);
+                $course->academicUnits()->attach($units[$unitNumber]->id, ['unit_type' => 'specialist']);
             }
 
             foreach ($definition['optional'] as $unitNumber) {
-                $pathway->academicUnits()->attach($units[$unitNumber]->id, ['unit_type' => 'optional']);
+                $course->academicUnits()->attach($units[$unitNumber]->id, ['unit_type' => 'optional']);
             }
         }
 
-        return $pathways;
+        return $courses;
     }
 
     private function seedAdmin(): void
@@ -291,9 +291,9 @@ class DatabaseSeeder extends Seeder
 
     /**
      * @param  array<int, AcademicUnit>  $units
-     * @param  array<string, Pathway>  $pathways
+     * @param  array<string, Course>  $courses
      */
-    private function seedStudentsWithGrades(array $units, array $pathways): void
+    private function seedStudentsWithGrades(array $units, array $courses): void
     {
         $grades = ['Pass', 'Merit', 'Distinction'];
 
@@ -305,7 +305,7 @@ class DatabaseSeeder extends Seeder
 
             $student = Student::factory()->create([
                 'user_id' => $user->id,
-                'pathway_id' => $pathways[$definition['pathway']]->id,
+                'course_id' => $courses[$definition['course']]->id,
                 'student_number' => sprintf('S%07d', 2529001 + $index),
             ]);
 
