@@ -69,15 +69,15 @@ class DashboardController extends Controller
      */
     private function studentDashboard(Request $request): Response
     {
-        $student = $request->user()->student?->load('user');
+        $student = $request->user()->student?->load(['user', 'pathway']);
         $latestProfile = $student?->competencyProfiles()->latest('generated_at')->first();
 
         return Inertia::render('student/dashboard', [
             'student' => $student ? [
                 'name' => $student->user->name,
                 'student_number' => $student->student_number,
-                'programme' => $student->programme,
-                'level' => $student->level,
+                'pathway' => $student->pathway->name,
+                'level' => $student->pathway->level,
             ] : null,
             'latestProfile' => $latestProfile ? [
                 'id' => $latestProfile->id,

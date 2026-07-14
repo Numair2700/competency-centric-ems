@@ -21,8 +21,8 @@ import { GRADE_VALUES, GRADE_WEIGHTS } from '@/types/ems';
 type StudentOption = {
     id: number;
     student_number: string;
-    programme: string;
     user: { id: number; name: string };
+    pathway: { id: number; name: string };
 };
 
 type ExistingGrade = {
@@ -34,7 +34,7 @@ type ExistingGrade = {
 
 type Props = {
     students: StudentOption[];
-    units: AcademicUnit[];
+    units?: AcademicUnit[];
     existingGrades?: ExistingGrade[];
 };
 
@@ -48,7 +48,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
         setStudentId(value);
         setGrades({});
         router.reload({
-            only: ['existingGrades'],
+            only: ['units', 'existingGrades'],
             data: { student_id: value },
             onSuccess: (page) => {
                 const existing = (page.props.existingGrades ?? []) as ExistingGrade[];
@@ -78,6 +78,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
     };
 
     const enteredCount = Object.values(grades).filter((grade) => grade !== '').length;
+    const unitList = units ?? [];
 
     return (
         <>
@@ -102,7 +103,8 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
                                             key={student.id}
                                             value={String(student.id)}
                                         >
-                                            {student.student_number} — {student.user.name}
+                                            {student.student_number} — {student.user.name} (
+                                            {student.pathway.name})
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -138,7 +140,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {units.map((unit) => {
+                                    {unitList.map((unit) => {
                                         const grade = grades[unit.id] ?? '';
 
                                         return (
@@ -193,7 +195,7 @@ export default function GradeEntry({ students, units, existingGrades }: Props) {
 
                             <div className="flex items-center justify-between">
                                 <p className="text-sm text-muted-foreground">
-                                    {enteredCount} of {units.length} units graded
+                                    {enteredCount} of {unitList.length} units graded
                                 </p>
                                 <Button
                                     onClick={save}

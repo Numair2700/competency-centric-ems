@@ -6,6 +6,7 @@ use Database\Factories\AcademicUnitFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -29,5 +30,12 @@ class AcademicUnit extends Model
     public function gradeRecords(): HasMany
     {
         return $this->hasMany(GradeRecord::class, 'unit_id');
+    }
+
+    public function pathways(): BelongsToMany
+    {
+        return $this->belongsToMany(Pathway::class, 'pathway_units', 'unit_id', 'pathway_id')
+            ->withPivot('unit_type')
+            ->withTimestamps();
     }
 }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\GradeEntryRequest;
-use App\Models\AcademicUnit;
 use App\Models\GradeRecord;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
@@ -20,11 +19,12 @@ class GradeEntryController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/grade-entry', [
-            'students' => Student::with('user:id,name')
+            'students' => Student::with(['user:id,name', 'pathway:id,name'])
                 ->orderBy('student_number')
-                ->get(['id', 'user_id', 'student_number', 'programme']),
-            'units' => AcademicUnit::orderBy('unit_code')
-                ->get(['id', 'unit_code', 'unit_title', 'credit_value', 'level']),
+                ->get(['id', 'user_id', 'pathway_id', 'student_number']),
+            'units' => Inertia::optional(
+                fn () => $this->unitsForStudent(request('student_id')),
+            ),
             'existingGrades' => Inertia::optional(
                 fn () => GradeRecord::where('student_id', request('student_id'))
                     ->get(['id', 'unit_id', 'grade', 'weight']),
@@ -52,5 +52,35 @@ class GradeEntryController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Grades saved.')]);
 
         return to_route('admin.grade-entry.index');
+    }
+
+    /**
+     * Only the units on the student's own pathway are gradeable (FR7)
+     * — this is what stops every student's Grade Entry page from
+     * listing all 54 units regardless of what they actually study.
+     */
+    private function unitsForStudent(?string $studentId): array
+    {
+        if ($studentId === null) {
+            return [];
+        }
+
+        $student = Student::with('pathway.academicUnits')->find($studentId);
+
+        if ($student === null) {
+            return [];
+        }
+
+        return $student->pathway->academicUnits
+            ->sortBy('unit_code')
+            ->values()
+            ->map(fn ($unit) => [
+                'id' => $unit->id,
+                'unit_code' => $unit->unit_code,
+                'unit_title' => $unit->unit_title,
+                'credit_value' => $unit->credit_value,
+                'level' => $unit->level,
+            ])
+            ->all();
     }
 }

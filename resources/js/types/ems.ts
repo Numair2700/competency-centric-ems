@@ -47,14 +47,21 @@ export type UnitSkillMapping = {
     sfia_level?: SfiaLevel;
 };
 
+export type Pathway = {
+    id: number;
+    programme_id: number;
+    name: string;
+    level: 'HNC' | 'HND';
+};
+
 export type StudentRow = {
     id: number;
     user_id: number;
+    pathway_id: number;
     student_number: string;
-    programme: string;
-    level: 'HNC' | 'HND';
     grade_records_count?: number;
     user?: { id: number; name: string; email: string };
+    pathway?: Pathway;
 };
 
 export type GradeValue = 'Pass' | 'Merit' | 'Distinction';

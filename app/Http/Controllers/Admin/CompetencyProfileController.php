@@ -24,7 +24,7 @@ class CompetencyProfileController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/generate-profile', [
-            'students' => Student::with('user:id,name')
+            'students' => Student::with(['user:id,name', 'pathway:id,name,level'])
                 ->withCount('gradeRecords')
                 ->orderBy('student_number')
                 ->get()
@@ -32,9 +32,10 @@ class CompetencyProfileController extends Controller
                     'id' => $student->id,
                     'name' => $student->user->name,
                     'student_number' => $student->student_number,
-                    'programme' => $student->programme,
-                    'level' => $student->level,
+                    'pathway' => $student->pathway->name,
+                    'level' => $student->pathway->level,
                     'graded_units' => $student->grade_records_count,
+                    'total_units' => $student->pathway->academicUnits()->count(),
                     'latest_profile_at' => $student->competencyProfiles()
                         ->latest('generated_at')
                         ->value('generated_at')
@@ -72,7 +73,7 @@ class CompetencyProfileController extends Controller
      */
     public function show(CompetencyProfile $profile): Response
     {
-        $profile->load(['student.user', 'scores.sfiaSkill']);
+        $profile->load(['student.user', 'student.pathway', 'scores.sfiaSkill']);
 
         return Inertia::render('admin/profile-view', [
             'profile' => [
@@ -83,7 +84,7 @@ class CompetencyProfileController extends Controller
                     'id' => $profile->student->id,
                     'name' => $profile->student->user->name,
                     'student_number' => $profile->student->student_number,
-                    'programme' => $profile->student->programme,
+                    'pathway' => $profile->student->pathway->name,
                 ],
                 'scores' => $profile->scores->map(fn ($score) => [
                     'skill_code' => $score->sfiaSkill->skill_code,

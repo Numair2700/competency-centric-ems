@@ -38,8 +38,7 @@ class StudentRequest extends FormRequest
                 'max:20',
                 Rule::unique('students', 'student_number')->ignore($student),
             ],
-            'programme' => ['required', 'string', 'max:255'],
-            'level' => ['required', Rule::in(['HNC', 'HND'])],
+            'pathway_id' => ['required', 'exists:pathways,id'],
         ];
     }
 }
