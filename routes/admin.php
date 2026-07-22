@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AcademicUnitController;
 use App\Http\Controllers\Admin\CompetencyProfileController;
+use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\GradeEntryController;
 use App\Http\Controllers\Admin\SfiaSkillController;
 use App\Http\Controllers\Admin\StudentController;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('students', StudentController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
 
     Route::resource('academic-units', AcademicUnitController::class)
         ->only(['index', 'store', 'update', 'destroy'])

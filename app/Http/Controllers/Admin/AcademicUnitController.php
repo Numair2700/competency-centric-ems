@@ -18,6 +18,7 @@ class AcademicUnitController extends Controller
     {
         return Inertia::render('admin/academic-units', [
             'units' => AcademicUnit::withCount('unitSkillMappings')
+                ->with('courses:id,name')
                 ->orderBy('unit_code')
                 ->get(),
         ]);

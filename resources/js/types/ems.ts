@@ -18,6 +18,7 @@ export type AcademicUnit = {
     credit_value: number;
     level: '4' | '5';
     unit_skill_mappings_count?: number;
+    courses?: { id: number; name: string }[];
 };
 
 export type SfiaLevel = {

@@ -27,12 +27,37 @@
     --color-ems-active: #dbeafe;
 }
 
+/* Dark counterpart of the Academic Precision palette — same hierarchy,
+   deep navy-slate surfaces, brightened primary for contrast. */
+.dark {
+    --color-ems-primary: #4c6ef5;
+    --color-ems-primary-container: #5c7cfa;
+    --color-ems-secondary: #a3adbd;
+    --color-ems-tertiary: #4dabf7;
+    --color-ems-bg: #10151c;
+    --color-ems-surface: #1a212b;
+    --color-ems-surface-low: #151b24;
+    --color-ems-surface-mid: #232c38;
+    --color-ems-border: #2c3644;
+    --color-ems-outline: #8b93a5;
+    --color-ems-on-surface: #e8ebf0;
+    --color-ems-emerald: #34d399;
+    --color-ems-amber: #fbbf24;
+    --color-ems-active: rgba(76, 110, 245, 0.18);
+}
+
 @layer utilities {
     .ems-glass-card {
         background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(12px);
         border: 1px solid rgba(226, 232, 240, 0.8);
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .dark .ems-glass-card {
+        background: rgba(26, 33, 43, 0.7);
+        border-color: rgba(44, 54, 68, 0.8);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
     }
 
     .ems-fade-in-up {
@@ -63,6 +88,15 @@
         width: 3px;
         background: #00288e;
         border-radius: 0 4px 4px 0;
+    }
+
+    .dark .ems-sidebar-active {
+        background: rgba(76, 110, 245, 0.12);
+        color: #93aefb;
+    }
+
+    .dark .ems-sidebar-active::before {
+        background: #5c7cfa;
     }
 }
 

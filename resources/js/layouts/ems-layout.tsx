@@ -5,6 +5,7 @@ import {
     ClipboardEdit,
     GraduationCap,
     LayoutGrid,
+    Library,
     LogOut,
     Network,
     Radar,
@@ -14,6 +15,7 @@ import {
 import type { LucideIcon, ReactNode } from 'react';
 import { dashboard } from '@/routes';
 import academicUnits from '@/routes/admin/academic-units';
+import courses from '@/routes/admin/courses';
 import gradeEntry from '@/routes/admin/grade-entry';
 import mappings from '@/routes/admin/mappings';
 import profiles from '@/routes/admin/profiles';
@@ -28,6 +30,7 @@ type EmsNavItem = { title: string; href: { url: string } | string; icon: LucideI
 
 const adminNav: EmsNavItem[] = [
     { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+    { title: 'Programmes & Courses', href: courses.index(), icon: Library },
     { title: 'Students', href: students.index(), icon: Users },
     { title: 'Academic Units', href: academicUnits.index(), icon: GraduationCap },
     { title: 'SFIA Skills', href: sfiaSkills.index(), icon: Brain },
