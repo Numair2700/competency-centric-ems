@@ -16,8 +16,8 @@ export default function AcademicUnits({ units }: Props) {
                     </p>
                 </div>
                 <EmsTable
-                    headers={['Code', 'Title', 'Credits', 'RQF Level', 'Mappings']}
-                    align={['left', 'left', 'right', 'center', 'right']}
+                    headers={['Code', 'Title', 'Credits', 'RQF Level', 'Courses', 'Mappings']}
+                    align={['left', 'left', 'right', 'center', 'left', 'right']}
                 >
                     {units.map((unit) => (
                         <tr key={unit.id} className="transition-colors hover:bg-white/50">
@@ -26,6 +26,18 @@ export default function AcademicUnits({ units }: Props) {
                             <td className="px-6 py-4 text-right text-sm">{unit.credit_value}</td>
                             <td className="px-6 py-4 text-center">
                                 <EmsPill>Level {unit.level}</EmsPill>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="flex max-w-64 flex-wrap gap-1">
+                                    {(unit.courses ?? []).map((course) => (
+                                        <span
+                                            key={course.id}
+                                            className="rounded bg-ems-surface-mid px-1.5 py-0.5 text-[11px] font-medium text-ems-secondary"
+                                        >
+                                            {course.name}
+                                        </span>
+                                    ))}
+                                </div>
                             </td>
                             <td className="px-6 py-4 text-right text-sm">{unit.unit_skill_mappings_count}</td>
                         </tr>

@@ -1,13 +1,31 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- The EMS design system is light-mode only (Academic Precision) --}}
+        {{-- Apply the stored appearance before first paint to avoid a flash --}}
+        <script>
+            (function() {
+                const appearance = '{{ $appearance ?? "system" }}';
+
+                if (appearance === 'system') {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                    if (prefersDark) {
+                        document.documentElement.classList.add('dark');
+                    }
+                }
+            })();
+        </script>
+
         <style>
             html {
                 background-color: #f7f9fb;
+            }
+
+            html.dark {
+                background-color: #10151c;
             }
         </style>
 

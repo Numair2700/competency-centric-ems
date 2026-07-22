@@ -37,9 +37,8 @@ const getStoredAppearance = (): Appearance => {
     return (localStorage.getItem('appearance') as Appearance) || 'system';
 };
 
-const isDarkMode = (_appearance: Appearance): boolean => {
-    // The EMS design system is light-mode only — dark mode is intentionally disabled.
-    return false;
+const isDarkMode = (appearance: Appearance): boolean => {
+    return appearance === 'dark' || (appearance === 'system' && prefersDark());
 };
 
 const applyTheme = (appearance: Appearance): void => {
