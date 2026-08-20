@@ -14,6 +14,14 @@ type Props = {
         course: string;
         level: string;
     } | null;
+    units: {
+        id: number;
+        unit_code: string;
+        unit_title: string;
+        credit_value: number;
+        unit_type: string;
+        grade: string | null;
+    }[];
     latestProfile: {
         id: number;
         generated_at: string;
@@ -21,7 +29,8 @@ type Props = {
     } | null;
 };
 
-export default function StudentDashboard({ student, latestProfile }: Props) {
+export default function StudentDashboard({ student, units, latestProfile }: Props) {
+    const gradedCount = units.filter((unit) => unit.grade !== null).length;
     return (
         <>
             <Head title="Dashboard" />
@@ -61,6 +70,49 @@ export default function StudentDashboard({ student, latestProfile }: Props) {
                                     </p>
                                     <p className="font-medium">{student.level}</p>
                                 </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <CardTitle className="text-base">My Units</CardTitle>
+                                <Badge variant="secondary">
+                                    {gradedCount} of {units.length} graded
+                                </Badge>
+                            </CardHeader>
+                            <CardContent>
+                                {units.length === 0 ? (
+                                    <p className="py-8 text-center text-sm text-muted-foreground">
+                                        No units are listed for your course yet.
+                                    </p>
+                                ) : (
+                                    <ul className="divide-y">
+                                        {units.map((unit) => (
+                                            <li
+                                                key={unit.id}
+                                                className="flex items-center justify-between gap-4 py-3"
+                                            >
+                                                <div className="min-w-0">
+                                                    <p className="truncate text-sm font-medium">
+                                                        <span className="text-muted-foreground">
+                                                            {unit.unit_code}
+                                                        </span>{' '}
+                                                        {unit.unit_title}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground capitalize">
+                                                        {unit.unit_type} · {unit.credit_value}{' '}
+                                                        credits
+                                                    </p>
+                                                </div>
+                                                {unit.grade === null ? (
+                                                    <Badge variant="outline">Not yet graded</Badge>
+                                                ) : (
+                                                    <Badge>{unit.grade}</Badge>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </CardContent>
                         </Card>
 
