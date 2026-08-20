@@ -69,7 +69,7 @@ class DashboardController extends Controller
      */
     private function studentDashboard(Request $request): Response
     {
-        $student = $request->user()->student?->load(['user', 'course']);
+        $student = $request->user()->student?->load(['user', 'course.academicUnits']);
         $latestProfile = $student?->competencyProfiles()->latest('generated_at')->first();
 
         return Inertia::render('student/dashboard', [
@@ -79,11 +79,38 @@ class DashboardController extends Controller
                 'course' => $student->course->name,
                 'level' => $student->course->level,
             ] : null,
+            'units' => $student ? $this->unitsWithGradeStatus($student) : [],
             'latestProfile' => $latestProfile ? [
                 'id' => $latestProfile->id,
                 'generated_at' => $latestProfile->generated_at->format('d M Y, H:i'),
                 'radar_data' => $latestProfile->radar_data,
             ] : null,
         ]);
+    }
+
+    /**
+     * The student's own course units, each flagged with its grade (FR2, FR13).
+     *
+     * A read-only view of the student's own academic record: every unit on
+     * their course, with the recorded grade or null when not yet graded.
+     *
+     * @return array<int, array{id:int, unit_code:string, unit_title:string, credit_value:int, unit_type:string, grade:string|null}>
+     */
+    private function unitsWithGradeStatus(Student $student): array
+    {
+        $grades = $student->gradeRecords()->get()->keyBy('unit_id');
+
+        return $student->course->academicUnits
+            ->sortBy('unit_code')
+            ->values()
+            ->map(fn (AcademicUnit $unit): array => [
+                'id' => $unit->id,
+                'unit_code' => $unit->unit_code,
+                'unit_title' => $unit->unit_title,
+                'credit_value' => $unit->credit_value,
+                'unit_type' => $unit->pivot->unit_type,
+                'grade' => $grades->get($unit->id)?->grade,
+            ])
+            ->all();
     }
 }
