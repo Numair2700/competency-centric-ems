@@ -42,7 +42,18 @@ class SfiaSkillController extends Controller
 
     public function update(SfiaSkillRequest $request, SfiaSkill $sfiaSkill): RedirectResponse
     {
-        $sfiaSkill->update($request->safe()->except('levels'));
+        DB::transaction(function () use ($request, $sfiaSkill) {
+            $sfiaSkill->update($request->safe()->except('levels'));
+
+            // Upsert levels by responsibility level; existing levels that may be
+            // referenced by mappings are never deleted here (avoids cascade loss).
+            foreach ($request->validated('levels', []) as $level) {
+                $sfiaSkill->levels()->updateOrCreate(
+                    ['responsibility_level' => $level['responsibility_level']],
+                    ['description' => $level['description'] ?? null],
+                );
+            }
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('SFIA skill updated.')]);
 
