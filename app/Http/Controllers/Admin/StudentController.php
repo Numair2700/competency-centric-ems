@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StudentRequest;
+use App\Models\Course;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,7 @@ class StudentController extends Controller
                 ->withCount('gradeRecords')
                 ->orderBy('student_number')
                 ->get(),
+            'courses' => Course::orderBy('name')->get(['id', 'name', 'level']),
         ]);
     }
 
