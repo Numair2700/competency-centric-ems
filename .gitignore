@@ -32,3 +32,12 @@ yarn-error.log
 *.docx
 /Competency_Centric_EMS_MASTER_CONTEXT.md
 /graphify-out
+
+# AI/agent tooling (kept local, excluded from the repo)
+/.claude
+/.cursor
+/.agents
+/.mcp.json
+/AGENTS.md
+/CLAUDE.md
+/boost.json
