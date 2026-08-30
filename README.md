@@ -45,7 +45,7 @@ The seeder loads one BTEC programme, six courses, 54 academic units, 24 SFIA ski
 - **Administrator:** `admin@ems.test`
 - **Students:** `student1@ems.test` … `student8@ems.test`
 
-All seeded accounts use the development password defined in the seeder. Role is detected automatically on login, so the same screen serves both.
+All seeded accounts use the password **`password`**. Role is detected automatically on login, so the same screen serves both.
 
 ## Project structure (where the key logic lives)
 
