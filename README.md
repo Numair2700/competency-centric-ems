@@ -47,7 +47,20 @@ The seeder loads one BTEC programme, six courses, 54 academic units, 24 SFIA ski
 
 All seeded accounts use the development password defined in the seeder. Role is detected automatically on login, so the same screen serves both.
 
+## Project structure (where the key logic lives)
+
+- **Calculation engine** — [`app/Services/CalculationEngine.php`](app/Services/CalculationEngine.php): the stateless weighted-scoring service. For each SFIA skill it sums `credit × grade weight × mapping weight`, then normalises against the maximum possible score to produce the percentage plotted on the radar chart.
+- **Grade weights** — [`app/Models/GradeRecord.php`](app/Models/GradeRecord.php): the `GRADE_WEIGHTS` constant (Pass = 0.5, Merit = 0.75, Distinction = 1.0).
+- **Unit → SFIA mapping** — the `UnitSkillMapping` model and `unit_skill_mappings` table join an academic unit to an SFIA skill at a specific responsibility level; this is the relationship the engine reads.
+- **Controllers** — `app/Http/Controllers/Admin/` (admin CRUD, grade entry, profile generation) and `app/Http/Controllers/Student/` + `DashboardController` (read-only student views).
+- **Models** — `app/Models/` (User, Student, Programme, Course, AcademicUnit, GradeRecord, SfiaSkill, SfiaLevel, UnitSkillMapping, CompetencyProfile, CompetencyScore).
+- **Views** — `resources/js/pages/` (Inertia + React pages, one per screen).
+- **Routes** — `routes/web.php`, `routes/admin.php`, `routes/student.php` (role-based middleware protects the admin routes).
+- **Database** — `database/migrations/` (schema) and `database/seeders/DatabaseSeeder.php` (the reference data and simulated students).
+
 ## Testing
+
+The project has 76 automated tests (Pest/PHPUnit) covering the calculation engine, grade validation, admin CRUD, role-based access, and profile generation. Run them with:
 
 ```bash
 php artisan test
