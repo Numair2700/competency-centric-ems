@@ -1,10 +1,10 @@
 import { Form, Head } from '@inertiajs/react';
 import { GraduationCap, Lock, LogIn, Mail } from 'lucide-react';
 import InputError from '@/components/input-error';
-import { Spinner } from '@/components/ui/spinner';
-import { request } from '@/routes/password';
-import { store } from '@/routes/login';
 import TextLink from '@/components/text-link';
+import { Spinner } from '@/components/ui/spinner';
+import { store } from '@/routes/login';
+import { request } from '@/routes/password';
 
 type Props = {
     status?: string;
@@ -54,7 +54,11 @@ export default function Login({ status, canResetPassword }: Props) {
                         </div>
                     )}
 
-                    <Form {...store.form()} resetOnSuccess={['password']} className="space-y-4">
+                    <Form
+                        {...store.form()}
+                        resetOnSuccess={['password']}
+                        className="space-y-4"
+                    >
                         {({ processing, errors }) => (
                             <>
                                 <div className="space-y-2">
@@ -133,7 +137,11 @@ export default function Login({ status, canResetPassword }: Props) {
                                     data-test="login-button"
                                     className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-ems-primary py-4 text-lg font-semibold text-white shadow-sm transition-all duration-150 hover:bg-ems-primary-container active:scale-95 disabled:pointer-events-none disabled:opacity-60"
                                 >
-                                    {processing ? <Spinner /> : <LogIn className="size-5" />}
+                                    {processing ? (
+                                        <Spinner />
+                                    ) : (
+                                        <LogIn className="size-5" />
+                                    )}
                                     Log In
                                 </button>
                             </>

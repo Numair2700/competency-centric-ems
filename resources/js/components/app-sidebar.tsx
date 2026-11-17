@@ -48,7 +48,8 @@ const studentNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { auth } = usePage<{ auth: Auth }>().props;
-    const navItems = auth.user.role === 'admin' ? adminNavItems : studentNavItems;
+    const navItems =
+        auth.user.role === 'admin' ? adminNavItems : studentNavItems;
 
     return (
         <Sidebar collapsible="icon" variant="inset">

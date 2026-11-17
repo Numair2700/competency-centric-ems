@@ -12,8 +12,10 @@ import {
     Settings,
     Users,
 } from 'lucide-react';
-import type { LucideIcon, ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { dashboard } from '@/routes';
+import { logout } from '@/routes';
 import academicUnits from '@/routes/admin/academic-units';
 import courses from '@/routes/admin/courses';
 import gradeEntry from '@/routes/admin/grade-entry';
@@ -21,18 +23,25 @@ import mappings from '@/routes/admin/mappings';
 import profiles from '@/routes/admin/profiles';
 import sfiaSkills from '@/routes/admin/sfia-skills';
 import students from '@/routes/admin/students';
-import { logout } from '@/routes';
 import { edit as settingsEdit } from '@/routes/profile';
 import { profile as studentProfile } from '@/routes/student';
 import type { Auth } from '@/types';
 
-type EmsNavItem = { title: string; href: { url: string } | string; icon: LucideIcon };
+type EmsNavItem = {
+    title: string;
+    href: { url: string } | string;
+    icon: LucideIcon;
+};
 
 const adminNav: EmsNavItem[] = [
     { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
     { title: 'Programmes & Courses', href: courses.index(), icon: Library },
     { title: 'Students', href: students.index(), icon: Users },
-    { title: 'Academic Units', href: academicUnits.index(), icon: GraduationCap },
+    {
+        title: 'Academic Units',
+        href: academicUnits.index(),
+        icon: GraduationCap,
+    },
     { title: 'SFIA Skills', href: sfiaSkills.index(), icon: Brain },
     { title: 'Mappings', href: mappings.index(), icon: Network },
     { title: 'Grade Entry', href: gradeEntry.index(), icon: ClipboardEdit },
@@ -63,6 +72,7 @@ export default function EmsLayout({ children }: { children: ReactNode }) {
 
     const active = (href: EmsNavItem['href']) => {
         const url = hrefUrl(href);
+
         return url === '/dashboard'
             ? currentUrl === '/dashboard'
             : currentUrl.startsWith(url);
@@ -83,7 +93,7 @@ export default function EmsLayout({ children }: { children: ReactNode }) {
                     {nav.map((item) => (
                         <Link
                             key={item.title}
-                            href={item.href}
+                            href={hrefUrl(item.href)}
                             prefetch
                             className={`flex items-center gap-3 rounded-lg px-4 py-3 text-[13px] font-medium transition-colors duration-150 ${
                                 active(item.href)
@@ -116,10 +126,14 @@ export default function EmsLayout({ children }: { children: ReactNode }) {
             </aside>
 
             <header className="sticky top-0 z-40 ml-60 flex h-20 items-center justify-between border-b border-ems-border/60 bg-ems-surface/70 px-10 backdrop-blur-xl">
-                <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">
+                    {title}
+                </h2>
                 <div className="flex items-center gap-4 border-l border-ems-border pl-6">
                     <div className="text-right">
-                        <p className="text-xs font-semibold">{auth.user.name}</p>
+                        <p className="text-xs font-semibold">
+                            {auth.user.name}
+                        </p>
                         <p className="text-[10px] font-bold tracking-wider text-ems-secondary uppercase">
                             {isAdmin ? 'System Administrator' : 'Student'}
                         </p>

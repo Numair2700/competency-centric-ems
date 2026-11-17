@@ -1,5 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { AlertTriangle } from 'lucide-react';
+import InputError from '@/components/input-error';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +13,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
-import InputError from '@/components/input-error';
 import profiles from '@/routes/admin/profiles';
 
 type StudentOption = {
@@ -39,7 +39,8 @@ export default function GenerateProfile({ students }: Props) {
         (student) => String(student.id) === data.student_id,
     );
 
-    const incomplete = selected !== undefined && selected.graded_units < selected.total_units;
+    const incomplete =
+        selected !== undefined && selected.graded_units < selected.total_units;
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
@@ -56,7 +57,9 @@ export default function GenerateProfile({ students }: Props) {
 
                 <Card className="max-w-2xl">
                     <CardHeader>
-                        <CardTitle className="text-base">Select Student</CardTitle>
+                        <CardTitle className="text-base">
+                            Select Student
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submit} className="flex flex-col gap-4">
@@ -64,7 +67,9 @@ export default function GenerateProfile({ students }: Props) {
                                 <Label htmlFor="student">Student</Label>
                                 <Select
                                     value={data.student_id}
-                                    onValueChange={(value) => setData('student_id', value)}
+                                    onValueChange={(value) =>
+                                        setData('student_id', value)
+                                    }
                                 >
                                     <SelectTrigger id="student">
                                         <SelectValue placeholder="Select a student..." />
@@ -75,7 +80,8 @@ export default function GenerateProfile({ students }: Props) {
                                                 key={student.id}
                                                 value={String(student.id)}
                                             >
-                                                {student.student_number} — {student.name}
+                                                {student.student_number} —{' '}
+                                                {student.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -89,20 +95,25 @@ export default function GenerateProfile({ students }: Props) {
                                         <p className="text-xs text-muted-foreground uppercase">
                                             Course
                                         </p>
-                                        <p className="font-medium">{selected.course}</p>
+                                        <p className="font-medium">
+                                            {selected.course}
+                                        </p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground uppercase">
                                             Level
                                         </p>
-                                        <p className="font-medium">{selected.level}</p>
+                                        <p className="font-medium">
+                                            {selected.level}
+                                        </p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-muted-foreground uppercase">
                                             Units Graded
                                         </p>
                                         <p className="font-medium">
-                                            {selected.graded_units} of {selected.total_units}
+                                            {selected.graded_units} of{' '}
+                                            {selected.total_units}
                                         </p>
                                     </div>
                                     <div>
@@ -110,7 +121,8 @@ export default function GenerateProfile({ students }: Props) {
                                             Last Profile
                                         </p>
                                         <p className="font-medium">
-                                            {selected.latest_profile_at ?? 'Never generated'}
+                                            {selected.latest_profile_at ??
+                                                'Never generated'}
                                         </p>
                                     </div>
                                 </div>
@@ -120,10 +132,11 @@ export default function GenerateProfile({ students }: Props) {
                                 <Alert className="border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
                                     <AlertTriangle className="size-4" />
                                     <AlertDescription>
-                                        This student has incomplete grade records (
-                                        {selected.graded_units} of {selected.total_units} units
-                                        graded). The generated profile may not reflect their
-                                        full competency.
+                                        This student has incomplete grade
+                                        records ({selected.graded_units} of{' '}
+                                        {selected.total_units} units graded).
+                                        The generated profile may not reflect
+                                        their full competency.
                                     </AlertDescription>
                                 </Alert>
                             )}
@@ -131,7 +144,9 @@ export default function GenerateProfile({ students }: Props) {
                             <div>
                                 <Button
                                     type="submit"
-                                    disabled={data.student_id === '' || processing}
+                                    disabled={
+                                        data.student_id === '' || processing
+                                    }
                                     className="bg-ems-primary hover:bg-ems-primary-container"
                                 >
                                     {processing && <Spinner />}

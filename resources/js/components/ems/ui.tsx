@@ -1,4 +1,5 @@
-import type { LucideIcon, ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import type { GradeValue } from '@/types/ems';
 
 /** Glassmorphism card per the Academic Precision design. */
@@ -33,7 +34,10 @@ export function StatCard({
     delay?: 1 | 2 | 3 | 4 | 5;
 }) {
     return (
-        <EmsCard delay={delay} className="group flex flex-col gap-4 p-5 transition-transform duration-300 hover:scale-[1.02]">
+        <EmsCard
+            delay={delay}
+            className="group flex flex-col gap-4 p-5 transition-transform duration-300 hover:scale-[1.02]"
+        >
             <div className="w-fit rounded-xl bg-ems-primary/5 p-3 text-ems-primary transition-colors duration-300 group-hover:bg-ems-primary group-hover:text-white">
                 <Icon className="size-6" strokeWidth={1.75} />
             </div>
@@ -41,7 +45,9 @@ export function StatCard({
                 <p className="mb-1 text-[10px] font-semibold tracking-[0.1em] text-ems-secondary/60 uppercase">
                     {label}
                 </p>
-                <h3 className="text-4xl leading-11 font-bold text-ems-on-surface">{value}</h3>
+                <h3 className="text-4xl leading-11 font-bold text-ems-on-surface">
+                    {value}
+                </h3>
             </div>
         </EmsCard>
     );
@@ -78,7 +84,9 @@ export function EmsTable({
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-ems-border/40">{children}</tbody>
+                <tbody className="divide-y divide-ems-border/40">
+                    {children}
+                </tbody>
             </table>
         </div>
     );
@@ -92,10 +100,14 @@ const gradePillStyles: Record<GradeValue, string> = {
 
 /** Coloured grade pill: Distinction emerald, Merit amber, Pass navy. */
 export function GradePill({ grade }: { grade: string }) {
-    const style = gradePillStyles[grade as GradeValue] ?? 'bg-ems-secondary/10 text-ems-secondary';
+    const style =
+        gradePillStyles[grade as GradeValue] ??
+        'bg-ems-secondary/10 text-ems-secondary';
 
     return (
-        <span className={`rounded-md px-3 py-1 text-[10px] font-bold tracking-wider uppercase ${style}`}>
+        <span
+            className={`rounded-md px-3 py-1 text-[10px] font-bold tracking-wider uppercase ${style}`}
+        >
             {grade}
         </span>
     );

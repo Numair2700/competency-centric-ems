@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2, TriangleAlert } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -29,15 +30,26 @@ export function Field({
         <div className="grid gap-1.5">
             <Label htmlFor={htmlFor}>{label}</Label>
             {children}
-            {error && <p className="text-xs font-medium text-ems-amber">{error}</p>}
+            {error && (
+                <p className="text-xs font-medium text-ems-amber">{error}</p>
+            )}
         </div>
     );
 }
 
 /** "Add …" button for a card header. */
-export function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
+export function AddButton({
+    label,
+    onClick,
+}: {
+    label: string;
+    onClick: () => void;
+}) {
     return (
-        <Button onClick={onClick} className="bg-ems-primary hover:bg-ems-primary-container">
+        <Button
+            onClick={onClick}
+            className="bg-ems-primary hover:bg-ems-primary-container"
+        >
             <Plus className="size-4" />
             {label}
         </Button>
@@ -67,7 +79,9 @@ export function FormDialog({
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
-                    {description && <DialogDescription>{description}</DialogDescription>}
+                    {description && (
+                        <DialogDescription>{description}</DialogDescription>
+                    )}
                 </DialogHeader>
                 <form
                     onSubmit={(e) => {
@@ -115,7 +129,13 @@ export function RowActions({
 
     return (
         <div className="flex items-center justify-end gap-1">
-            <Button variant="ghost" size="icon" className="size-8" onClick={onEdit} title="Edit">
+            <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={onEdit}
+                title="Edit"
+            >
                 <Pencil className="size-4 text-ems-secondary" />
             </Button>
             <Button
@@ -140,7 +160,10 @@ export function RowActions({
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setConfirming(false)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setConfirming(false)}
+                        >
                             Cancel
                         </Button>
                         <Button

@@ -66,11 +66,21 @@
         transform: translateY(30px);
     }
 
-    .ems-delay-1 { animation-delay: 0.1s; }
-    .ems-delay-2 { animation-delay: 0.2s; }
-    .ems-delay-3 { animation-delay: 0.3s; }
-    .ems-delay-4 { animation-delay: 0.4s; }
-    .ems-delay-5 { animation-delay: 0.5s; }
+    .ems-delay-1 {
+        animation-delay: 0.1s;
+    }
+    .ems-delay-2 {
+        animation-delay: 0.2s;
+    }
+    .ems-delay-3 {
+        animation-delay: 0.3s;
+    }
+    .ems-delay-4 {
+        animation-delay: 0.4s;
+    }
+    .ems-delay-5 {
+        animation-delay: 0.5s;
+    }
 
     .ems-sidebar-active {
         position: relative;

@@ -33,7 +33,11 @@ const unitTypeStyles: Record<CourseUnit['unit_type'], string> = {
     optional: 'bg-ems-secondary/10 text-ems-secondary',
 };
 
-const unitTypeOrder: CourseUnit['unit_type'][] = ['core', 'specialist', 'optional'];
+const unitTypeOrder: CourseUnit['unit_type'][] = [
+    'core',
+    'specialist',
+    'optional',
+];
 
 export default function Courses({ programmes }: Props) {
     return (
@@ -42,9 +46,15 @@ export default function Courses({ programmes }: Props) {
             <div className="flex flex-col gap-8">
                 {programmes.map((programme) => (
                     <div key={programme.id} className="flex flex-col gap-6">
-                        <EmsCard delay={1} className="flex items-center gap-4 p-5">
+                        <EmsCard
+                            delay={1}
+                            className="flex items-center gap-4 p-5"
+                        >
                             <div className="rounded-xl bg-ems-primary/5 p-3 text-ems-primary">
-                                <GraduationCap className="size-6" strokeWidth={1.75} />
+                                <GraduationCap
+                                    className="size-6"
+                                    strokeWidth={1.75}
+                                />
                             </div>
                             <div>
                                 <p className="text-[10px] font-semibold tracking-[0.1em] text-ems-secondary/60 uppercase">
@@ -54,8 +64,9 @@ export default function Courses({ programmes }: Props) {
                                     {programme.name}
                                 </h2>
                                 <p className="text-[13px] text-ems-secondary">
-                                    {programme.courses.length} courses — each student is
-                                    enrolled on one course and graded only on its units
+                                    {programme.courses.length} courses — each
+                                    student is enrolled on one course and graded
+                                    only on its units
                                 </p>
                             </div>
                         </EmsCard>
@@ -64,7 +75,10 @@ export default function Courses({ programmes }: Props) {
                             {programme.courses.map((course, index) => (
                                 <EmsCard
                                     key={course.id}
-                                    delay={Math.min(index + 1, 5) as 1 | 2 | 3 | 4 | 5}
+                                    delay={
+                                        Math.min(index + 1, 5) as
+                                            1 | 2 | 3 | 4 | 5
+                                    }
                                     className="overflow-hidden"
                                 >
                                     <div className="flex items-center justify-between border-b border-ems-border/60 bg-white/30 px-6 py-4 dark:bg-white/5">
@@ -75,7 +89,8 @@ export default function Courses({ programmes }: Props) {
                                             <p className="text-xs text-ems-secondary">
                                                 {course.units.length} units ·{' '}
                                                 {course.units.reduce(
-                                                    (sum, unit) => sum + unit.credit_value,
+                                                    (sum, unit) =>
+                                                        sum + unit.credit_value,
                                                     0,
                                                 )}{' '}
                                                 credits available
@@ -93,7 +108,8 @@ export default function Courses({ programmes }: Props) {
                                     <div className="flex flex-col gap-3 p-5">
                                         {unitTypeOrder.map((type) => {
                                             const units = course.units.filter(
-                                                (unit) => unit.unit_type === type,
+                                                (unit) =>
+                                                    unit.unit_type === type,
                                             );
 
                                             if (units.length === 0) {
@@ -113,9 +129,13 @@ export default function Courses({ programmes }: Props) {
                                                                 className={`rounded px-2 py-1 text-xs font-medium ${unitTypeStyles[type]}`}
                                                             >
                                                                 <span className="font-bold">
-                                                                    {unit.unit_code}
+                                                                    {
+                                                                        unit.unit_code
+                                                                    }
                                                                 </span>{' '}
-                                                                {unit.unit_title}
+                                                                {
+                                                                    unit.unit_title
+                                                                }
                                                             </span>
                                                         ))}
                                                     </div>

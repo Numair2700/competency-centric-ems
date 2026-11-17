@@ -73,6 +73,7 @@ export default function RadarChart({ data }: Props) {
                         callbacks: {
                             label: (context) => {
                                 const point = data[context.dataIndex];
+
                                 return `${point.skill_name}: ${point.normalised_score}%`;
                             },
                         },
