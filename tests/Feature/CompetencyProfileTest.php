@@ -98,3 +98,27 @@ test('a student can view their own latest profile (FR12)', function () {
             ->has('profile.scores', 1),
         );
 });
+
+test('a saved profile keeps its own derivation after grades change (FR14)', function () {
+    $admin = User::factory()->admin()->create();
+    $student = seedGradedStudent();
+
+    $this->actingAs($admin)->post(route('admin.profiles.store'), [
+        'student_id' => $student->id,
+    ]);
+
+    $profile = $student->competencyProfiles()->first();
+
+    // The grade changes after the profile was generated…
+    $student->gradeRecords()->update(['grade' => 'Pass', 'weight' => 0.5]);
+
+    // …but the saved profile must still explain the scores it stored.
+    $this->actingAs($admin)
+        ->get(route('admin.profiles.show', $profile))
+        ->assertInertia(fn ($page) => $page
+            ->where('profile.scores.0.normalised_score', 100)
+            ->where('derivation.0.units.0.grade', 'Distinction')
+            ->where('derivation.0.units.0.weight', 1)
+            ->where('derivation.0.units.0.contribution', fn ($value) => (float) $value === (float) $profile->scores()->first()->raw_score),
+        );
+});

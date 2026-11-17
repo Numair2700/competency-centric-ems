@@ -63,21 +63,43 @@ class CalculationEngine
         /** @var array<int, array{raw: float, max: float}> $totals */
         $totals = [];
 
+        /** @var array<int, list<array<string, mixed>>> $contributions */
+        $contributions = [];
+
         foreach ($gradeRecords as $record) {
             $gradeWeight = $this->applyGradeWeight($record->grade);
+            $credits = $record->unit->credit_value;
 
             foreach ($record->unit->unitSkillMappings as $mapping) {
                 $skillId = $mapping->sfia_skill_id;
                 $totals[$skillId] ??= ['raw' => 0.0, 'max' => 0.0];
 
-                $totals[$skillId]['raw'] += $record->unit->credit_value * $gradeWeight * $mapping->mapping_weight;
-                $totals[$skillId]['max'] += $record->unit->credit_value * 1.0 * $mapping->mapping_weight;
+                $totals[$skillId]['raw'] += $credits * $gradeWeight * $mapping->mapping_weight;
+                $totals[$skillId]['max'] += $credits * 1.0 * $mapping->mapping_weight;
+
+                // Snapshot of the exact inputs used, so the saved profile can
+                // always explain its own scores even after grades change (FR14).
+                $contributions[$skillId][] = [
+                    'unit_code' => $record->unit->unit_code,
+                    'unit_title' => $record->unit->unit_title,
+                    'credit_value' => $credits,
+                    'grade' => $record->grade,
+                    'weight' => $gradeWeight,
+                    'mapping_weight' => $mapping->mapping_weight,
+                    'contribution' => round($credits * $gradeWeight * $mapping->mapping_weight, 2),
+                ];
             }
         }
 
         $skills = SfiaSkill::whereIn('id', array_keys($totals))->get()->keyBy('id');
 
-        return DB::transaction(function () use ($student, $totals, $skills): CompetencyProfile {
+        $derivation = [];
+
+        foreach ($contributions as $skillId => $units) {
+            $derivation[] = ['skill_code' => $skills[$skillId]->skill_code, 'units' => $units];
+        }
+
+        return DB::transaction(function () use ($student, $totals, $skills, $derivation): CompetencyProfile {
             $radarData = [];
 
             foreach ($totals as $skillId => $sums) {
@@ -92,6 +114,7 @@ class CalculationEngine
                 'student_id' => $student->id,
                 'generated_at' => now(),
                 'radar_data' => $radarData,
+                'derivation' => $derivation,
             ]);
 
             foreach ($totals as $skillId => $sums) {

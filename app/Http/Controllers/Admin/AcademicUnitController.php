@@ -44,6 +44,23 @@ class AcademicUnitController extends Controller
 
     public function destroy(AcademicUnit $academicUnit): RedirectResponse
     {
+        // Grade records cascade on delete, so removing a graded unit would
+        // silently erase students' results. Refuse instead.
+        $gradeCount = $academicUnit->gradeRecords()->count();
+
+        if ($gradeCount > 0) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => trans_choice(
+                    'Cannot delete :code — :count student has a grade recorded for it.|Cannot delete :code — :count students have grades recorded for it.',
+                    $gradeCount,
+                    ['code' => $academicUnit->unit_code],
+                ),
+            ]);
+
+            return to_route('admin.academic-units.index');
+        }
+
         $academicUnit->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Academic unit deleted.')]);

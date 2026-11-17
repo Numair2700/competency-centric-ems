@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\GradeEntryRequest;
 use App\Models\GradeRecord;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,42 +17,50 @@ use Inertia\Response;
  */
 class GradeEntryController extends Controller
 {
-    public function index(): Response
+    /**
+     * The selected student lives in the URL (?student_id=…), so the page
+     * survives a refresh and the redirect after saving.
+     */
+    public function index(Request $request): Response
     {
+        $studentId = $request->filled('student_id') ? (string) $request->input('student_id') : null;
+
         return Inertia::render('admin/grade-entry', [
             'students' => Student::with(['user:id,name', 'course:id,name'])
                 ->orderBy('student_number')
                 ->get(['id', 'user_id', 'course_id', 'student_number']),
-            'units' => Inertia::optional(
-                fn () => $this->unitsForStudent(request('student_id')),
-            ),
-            'existingGrades' => Inertia::optional(
-                fn () => GradeRecord::where('student_id', request('student_id'))
-                    ->get(['id', 'unit_id', 'grade', 'weight']),
-            ),
+            'selectedStudentId' => $studentId,
+            'units' => fn () => $this->unitsForStudent($studentId),
+            'existingGrades' => fn () => $studentId === null ? [] : GradeRecord::where('student_id', $studentId)
+                ->get(['id', 'unit_id', 'grade', 'weight']),
         ]);
     }
 
     public function store(GradeEntryRequest $request): RedirectResponse
     {
-        DB::transaction(function () use ($request) {
+        $studentId = $request->validated('student_id');
+
+        DB::transaction(function () use ($request, $studentId) {
             foreach ($request->validated('grades') as $entry) {
-                GradeRecord::updateOrCreate(
-                    [
-                        'student_id' => $request->validated('student_id'),
-                        'unit_id' => $entry['unit_id'],
-                    ],
-                    [
-                        'grade' => $entry['grade'],
-                        'weight' => GradeRecord::GRADE_WEIGHTS[$entry['grade']],
-                    ],
-                );
+                $key = ['student_id' => $studentId, 'unit_id' => $entry['unit_id']];
+
+                // A null grade means the admin cleared it (FR7).
+                if ($entry['grade'] === null) {
+                    GradeRecord::where($key)->delete();
+
+                    continue;
+                }
+
+                GradeRecord::updateOrCreate($key, [
+                    'grade' => $entry['grade'],
+                    'weight' => GradeRecord::GRADE_WEIGHTS[$entry['grade']],
+                ]);
             }
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Grades saved.')]);
 
-        return to_route('admin.grade-entry.index');
+        return to_route('admin.grade-entry.index', ['student_id' => $studentId]);
     }
 
     /**

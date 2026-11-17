@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { RefreshCw } from 'lucide-react';
 import RadarChart from '@/components/radar-chart';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ type DerivationRow = {
     credit_value: number;
     grade: string;
     weight: number;
+    mapping_weight: number;
     contribution: number;
 };
 
@@ -49,7 +50,8 @@ export default function ProfileView({ profile, derivation }: Props) {
                             </span>
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {profile.student.course} · Generated {profile.generated_at}
+                            {profile.student.course} · Generated{' '}
+                            {profile.generated_at}
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -60,7 +62,9 @@ export default function ProfileView({ profile, derivation }: Props) {
                             variant="outline"
                             size="sm"
                             disabled={recalculate.processing}
-                            onClick={() => recalculate.post(profiles.store.url())}
+                            onClick={() =>
+                                recalculate.post(profiles.store.url())
+                            }
                         >
                             {recalculate.processing ? (
                                 <Spinner />
@@ -75,7 +79,9 @@ export default function ProfileView({ profile, derivation }: Props) {
                 <div className="grid gap-6 lg:grid-cols-2">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">Competency Radar</CardTitle>
+                            <CardTitle className="text-base">
+                                Competency Radar
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="mx-auto h-96">
@@ -86,7 +92,9 @@ export default function ProfileView({ profile, derivation }: Props) {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">Score Breakdown</CardTitle>
+                            <CardTitle className="text-base">
+                                Score Breakdown
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <table className="w-full text-sm">
@@ -94,7 +102,9 @@ export default function ProfileView({ profile, derivation }: Props) {
                                     <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
                                         <th className="pb-2">SFIA Skill</th>
                                         <th className="pb-2 text-right">Raw</th>
-                                        <th className="pb-2 text-right">Normalised</th>
+                                        <th className="pb-2 text-right">
+                                            Normalised
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -128,11 +138,14 @@ export default function ProfileView({ profile, derivation }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">
-                            Score Derivation (FR14 — how each score was calculated)
+                            Score Derivation (FR14 — how each score was
+                            calculated)
                         </CardTitle>
                         <p className="text-xs text-muted-foreground">
-                            Contribution per unit = credit value × grade weight (Pass 0.5 ·
-                            Merit 0.75 · Distinction 1.0)
+                            Contribution per unit = credits × grade weight (Pass
+                            0.5 · Merit 0.75 · Distinction 1.0) × mapping
+                            weight. Figures are the inputs recorded when this
+                            profile was generated.
                         </p>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
@@ -141,41 +154,58 @@ export default function ProfileView({ profile, derivation }: Props) {
                                 <h3 className="mb-1 text-sm font-semibold">
                                     {skill.skill_code}
                                 </h3>
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
-                                            <th className="pb-1">Unit</th>
-                                            <th className="pb-1 text-right">Credits</th>
-                                            <th className="pb-1 text-right">Grade</th>
-                                            <th className="pb-1 text-right">Weight</th>
-                                            <th className="pb-1 text-right">Contribution</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {skill.units.map((unit) => (
-                                            <tr
-                                                key={`${skill.skill_code}-${unit.unit_code}`}
-                                                className="border-b border-ems-border/60 last:border-0"
-                                            >
-                                                <td className="py-1.5">
-                                                    {unit.unit_code} {unit.unit_title}
-                                                </td>
-                                                <td className="py-1.5 text-right">
-                                                    {unit.credit_value}
-                                                </td>
-                                                <td className="py-1.5 text-right">
-                                                    {unit.grade}
-                                                </td>
-                                                <td className="py-1.5 text-right">
-                                                    {unit.weight}
-                                                </td>
-                                                <td className="py-1.5 text-right font-medium">
-                                                    {unit.contribution}
-                                                </td>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[560px] text-sm">
+                                        <thead>
+                                            <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
+                                                <th className="pb-1">Unit</th>
+                                                <th className="pb-1 text-right">
+                                                    Credits
+                                                </th>
+                                                <th className="pb-1 text-right">
+                                                    Grade
+                                                </th>
+                                                <th className="pb-1 text-right">
+                                                    Grade wt.
+                                                </th>
+                                                <th className="pb-1 text-right">
+                                                    Mapping wt.
+                                                </th>
+                                                <th className="pb-1 text-right">
+                                                    Contribution
+                                                </th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {skill.units.map((unit) => (
+                                                <tr
+                                                    key={`${skill.skill_code}-${unit.unit_code}`}
+                                                    className="border-b border-ems-border/60 last:border-0"
+                                                >
+                                                    <td className="py-1.5">
+                                                        {unit.unit_code}{' '}
+                                                        {unit.unit_title}
+                                                    </td>
+                                                    <td className="py-1.5 text-right">
+                                                        {unit.credit_value}
+                                                    </td>
+                                                    <td className="py-1.5 text-right">
+                                                        {unit.grade}
+                                                    </td>
+                                                    <td className="py-1.5 text-right">
+                                                        {unit.weight}
+                                                    </td>
+                                                    <td className="py-1.5 text-right">
+                                                        {unit.mapping_weight}
+                                                    </td>
+                                                    <td className="py-1.5 text-right font-medium">
+                                                        {unit.contribution}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         ))}
                     </CardContent>

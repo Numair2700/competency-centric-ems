@@ -93,12 +93,15 @@ class CompetencyProfileController extends Controller
                     'normalised_score' => $score->normalised_score,
                 ]),
             ],
-            'derivation' => $this->scoreDerivation($profile),
+            'derivation' => $profile->derivation ?? $this->scoreDerivation($profile),
         ]);
     }
 
     /**
-     * Per-skill breakdown showing how each score was derived (FR14, FR17).
+     * Per-skill breakdown rebuilt from the student's current grades (FR14, FR17).
+     *
+     * Only used for profiles generated before the derivation was snapshotted
+     * at generation time; newer profiles carry their own derivation.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -118,6 +121,7 @@ class CompetencyProfileController extends Controller
                     'credit_value' => $record->unit->credit_value,
                     'grade' => $record->grade,
                     'weight' => $record->weight,
+                    'mapping_weight' => $mapping->mapping_weight,
                     'contribution' => round($record->unit->credit_value * $record->weight * $mapping->mapping_weight, 2),
                 ];
             }

@@ -2,11 +2,11 @@
 
 An Educational Management System that maps Pearson BTEC HND Computing academic grades against the **SFIA** professional-competency framework and visualises the result as a radar chart. It has two roles: an **administrator** who manages units, SFIA skills, unit-to-skill mappings, students and grades and generates competency profiles, and a **student** who views their own units, grade progress and competency profile (read-only).
 
-**Stack:** Laravel 13 (PHP 8.3+) · React 19 + TypeScript · Inertia.js v3 · MySQL · Chart.js · Tailwind CSS · served locally with Laravel Herd.
+**Stack:** Laravel 13 (PHP 8.4+) · React 19 + TypeScript · Inertia.js v3 · MySQL · Chart.js · Tailwind CSS · served locally with Laravel Herd.
 
 ## Requirements
 
-- PHP 8.3+, Composer
+- PHP 8.4.1+ and Composer (the locked Symfony 8.1 packages require PHP ≥ 8.4.1; `composer install` fails on 8.3)
 - Node.js and npm
 - MySQL
 - (Recommended) [Laravel Herd](https://herd.laravel.com/), which serves the site at `https://competency-centric-ems.test`
@@ -60,13 +60,21 @@ All seeded accounts use the password **`password`**. Role is detected automatica
 
 ## Testing
 
-The project has 76 automated tests (Pest/PHPUnit) covering the calculation engine, grade validation, admin CRUD, role-based access, and profile generation. Run them with:
+The project has 82 automated tests (Pest/PHPUnit) covering the calculation engine, grade validation, admin CRUD, role-based access, and profile generation. Run them with:
 
 ```bash
 php artisan test
 ```
 
-Tests run against an isolated in-memory SQLite database, so they never touch your development data.
+Tests run against an isolated in-memory SQLite database, so they never touch your development data. They don't need a frontend build: Vite is disabled in the test base class.
+
+Frontend checks (these only report; `npm run lint` and `npm run format` rewrite files):
+
+```bash
+npm run lint:check
+npm run format:check
+npx tsc --noEmit
+```
 
 ## Building for production
 

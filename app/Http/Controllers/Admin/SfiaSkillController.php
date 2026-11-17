@@ -62,6 +62,19 @@ class SfiaSkillController extends Controller
 
     public function destroy(SfiaSkill $sfiaSkill): RedirectResponse
     {
+        // Competency scores cascade on delete, so removing a skill that already
+        // appears in generated profiles would silently rewrite their history.
+        if ($sfiaSkill->competencyScores()->exists()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __('Cannot delete :code — it appears in generated competency profiles.', [
+                    'code' => $sfiaSkill->skill_code,
+                ]),
+            ]);
+
+            return to_route('admin.sfia-skills.index');
+        }
+
         $sfiaSkill->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('SFIA skill deleted.')]);

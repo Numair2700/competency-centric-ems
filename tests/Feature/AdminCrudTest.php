@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\AcademicUnit;
+use App\Models\CompetencyProfile;
 use App\Models\Course;
+use App\Models\GradeRecord;
 use App\Models\SfiaLevel;
 use App\Models\SfiaSkill;
 use App\Models\Student;
@@ -46,6 +48,19 @@ test('an admin can delete an academic unit (FR3)', function () {
     $this->assertDatabaseMissing('academic_units', ['id' => $unit->id]);
 });
 
+test('an academic unit with recorded grades cannot be deleted', function () {
+    $admin = User::factory()->admin()->create();
+    $unit = AcademicUnit::factory()->create();
+    GradeRecord::factory()->create(['unit_id' => $unit->id, 'grade' => 'Merit', 'weight' => 0.75]);
+
+    $this->actingAs($admin)
+        ->delete(route('admin.academic-units.destroy', $unit))
+        ->assertRedirect(route('admin.academic-units.index'));
+
+    $this->assertDatabaseHas('academic_units', ['id' => $unit->id]);
+    $this->assertDatabaseCount('grade_records', 1);
+});
+
 // --- SFIA Skills (FR5) ---
 
 test('an admin can create an SFIA skill with responsibility levels (FR5)', function () {
@@ -73,6 +88,20 @@ test('an admin can delete an SFIA skill (FR5)', function () {
     $this->actingAs($admin)->delete(route('admin.sfia-skills.destroy', $skill))->assertRedirect();
 
     $this->assertDatabaseMissing('sfia_skills', ['id' => $skill->id]);
+});
+
+test('an SFIA skill used in a generated profile cannot be deleted', function () {
+    $admin = User::factory()->admin()->create();
+    $skill = SfiaSkill::factory()->create();
+    $profile = CompetencyProfile::factory()->create();
+    $profile->scores()->create(['sfia_skill_id' => $skill->id, 'raw_score' => 10, 'normalised_score' => 50]);
+
+    $this->actingAs($admin)
+        ->delete(route('admin.sfia-skills.destroy', $skill))
+        ->assertRedirect(route('admin.sfia-skills.index'));
+
+    $this->assertDatabaseHas('sfia_skills', ['id' => $skill->id]);
+    $this->assertDatabaseCount('competency_scores', 1);
 });
 
 // --- Unit-to-SFIA Mappings (FR6) ---

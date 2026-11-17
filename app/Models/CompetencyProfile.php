@@ -15,8 +15,9 @@ use Illuminate\Support\Carbon;
  * @property int $student_id
  * @property Carbon $generated_at
  * @property array $radar_data
+ * @property array|null $derivation
  */
-#[Fillable(['student_id', 'generated_at', 'radar_data'])]
+#[Fillable(['student_id', 'generated_at', 'radar_data', 'derivation'])]
 class CompetencyProfile extends Model
 {
     /** @use HasFactory<CompetencyProfileFactory> */
@@ -27,6 +28,7 @@ class CompetencyProfile extends Model
         return [
             'generated_at' => 'datetime',
             'radar_data' => 'array',
+            'derivation' => 'array',
         ];
     }
 

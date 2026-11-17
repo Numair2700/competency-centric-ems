@@ -5,10 +5,23 @@ use App\Models\Course;
 use App\Models\Student;
 use App\Models\User;
 
+/**
+ * A student whose course includes the given (or a freshly created) unit.
+ *
+ * @return array{0: Student, 1: AcademicUnit}
+ */
+function studentOnCourseWithUnit(): array
+{
+    $course = Course::factory()->create();
+    $unit = AcademicUnit::factory()->create();
+    $course->academicUnits()->attach($unit->id, ['unit_type' => 'core']);
+
+    return [Student::factory()->create(['course_id' => $course->id]), $unit];
+}
+
 test('an admin can save grades for a student', function () {
     $admin = User::factory()->admin()->create();
-    $student = Student::factory()->create();
-    $unit = AcademicUnit::factory()->create();
+    [$student, $unit] = studentOnCourseWithUnit();
 
     $response = $this->actingAs($admin)->post(route('admin.grade-entry.store'), [
         'student_id' => $student->id,
@@ -17,7 +30,7 @@ test('an admin can save grades for a student', function () {
         ],
     ]);
 
-    $response->assertRedirect(route('admin.grade-entry.index'));
+    $response->assertRedirect(route('admin.grade-entry.index', ['student_id' => $student->id]));
 
     $this->assertDatabaseHas('grade_records', [
         'student_id' => $student->id,
@@ -29,8 +42,7 @@ test('an admin can save grades for a student', function () {
 
 test('invalid grade values are rejected (FR16)', function () {
     $admin = User::factory()->admin()->create();
-    $student = Student::factory()->create();
-    $unit = AcademicUnit::factory()->create();
+    [$student, $unit] = studentOnCourseWithUnit();
 
     $response = $this->actingAs($admin)->post(route('admin.grade-entry.store'), [
         'student_id' => $student->id,
@@ -81,8 +93,7 @@ test('grade entry only offers units on the student\'s own course', function () {
 
 test('saving a grade twice updates the existing record (FR15)', function () {
     $admin = User::factory()->admin()->create();
-    $student = Student::factory()->create();
-    $unit = AcademicUnit::factory()->create();
+    [$student, $unit] = studentOnCourseWithUnit();
 
     $this->actingAs($admin)->post(route('admin.grade-entry.store'), [
         'student_id' => $student->id,
@@ -101,4 +112,53 @@ test('saving a grade twice updates the existing record (FR15)', function () {
         'grade' => 'Merit',
         'weight' => 0.75,
     ]);
+});
+
+test('a grade cannot be saved for a unit outside the student\'s course', function () {
+    $admin = User::factory()->admin()->create();
+    [$student] = studentOnCourseWithUnit();
+    $foreignUnit = AcademicUnit::factory()->create();
+
+    $response = $this->actingAs($admin)->post(route('admin.grade-entry.store'), [
+        'student_id' => $student->id,
+        'grades' => [['unit_id' => $foreignUnit->id, 'grade' => 'Distinction']],
+    ]);
+
+    $response->assertSessionHasErrors('grades.0.unit_id');
+    $this->assertDatabaseCount('grade_records', 0);
+});
+
+test('an admin can clear a previously saved grade', function () {
+    $admin = User::factory()->admin()->create();
+    [$student, $unit] = studentOnCourseWithUnit();
+
+    $this->actingAs($admin)->post(route('admin.grade-entry.store'), [
+        'student_id' => $student->id,
+        'grades' => [['unit_id' => $unit->id, 'grade' => 'Merit']],
+    ]);
+
+    $this->actingAs($admin)->post(route('admin.grade-entry.store'), [
+        'student_id' => $student->id,
+        'grades' => [['unit_id' => $unit->id, 'grade' => null]],
+    ])->assertSessionHasNoErrors();
+
+    $this->assertDatabaseCount('grade_records', 0);
+});
+
+test('the grade entry page loads the selected student from the URL', function () {
+    $admin = User::factory()->admin()->create();
+    [$student, $unit] = studentOnCourseWithUnit();
+
+    $this->actingAs($admin)->post(route('admin.grade-entry.store'), [
+        'student_id' => $student->id,
+        'grades' => [['unit_id' => $unit->id, 'grade' => 'Pass']],
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.grade-entry.index', ['student_id' => $student->id]))
+        ->assertInertia(fn ($page) => $page
+            ->component('admin/grade-entry')
+            ->where('selectedStudentId', (string) $student->id)
+            ->has('units', 1)
+            ->where('existingGrades.0.grade', 'Pass'));
 });
