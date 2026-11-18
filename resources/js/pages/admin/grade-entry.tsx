@@ -1,10 +1,16 @@
 import { Head, router } from '@inertiajs/react';
-import { Info, X } from 'lucide-react';
+import { ClipboardEdit, X } from 'lucide-react';
 import { useState } from 'react';
+import {
+    EmptyState,
+    EmsCard,
+    EmsCardHeader,
+    ProgressBar,
+    SearchInput,
+    useSearch,
+} from '@/components/ems/ui';
 import InputError from '@/components/input-error';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -72,7 +78,14 @@ function GradeEntryEditor({
     const [grades, setGrades] = useState<GradeMap>(saved);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [processing, setProcessing] = useState(false);
+    const { query, setQuery, results } = useSearch(units, (unit) => [
+        unit.unit_code,
+        unit.unit_title,
+    ]);
 
+    const selectedStudent = students.find(
+        (student) => String(student.id) === selectedStudentId,
+    );
     const changed = units.filter(
         (unit) => (grades[unit.id] ?? '') !== (saved[unit.id] ?? ''),
     );
@@ -126,21 +139,19 @@ function GradeEntryEditor({
     const errorMessages = [...new Set(Object.values(errors))];
 
     return (
-        <div className="flex flex-col gap-6">
-            <p className="text-sm text-ems-secondary">
-                Enter student grades per academic unit (FR7). Weights apply
-                automatically on save.
-            </p>
-
-            <Card className="max-w-md">
-                <CardContent className="pt-6">
+        <div className="flex flex-col gap-6 pb-20">
+            <EmsCard delay={1} className="p-4 sm:p-6">
+                <div className="grid gap-4 md:grid-cols-[minmax(0,28rem)_1fr] md:items-end">
                     <div className="grid gap-2">
                         <Label htmlFor="student">Student</Label>
                         <Select
                             value={selectedStudentId ?? ''}
                             onValueChange={selectStudent}
                         >
-                            <SelectTrigger id="student">
+                            <SelectTrigger
+                                id="student"
+                                className="bg-ems-surface"
+                            >
                                 <SelectValue placeholder="Select a student..." />
                             </SelectTrigger>
                             <SelectContent>
@@ -158,200 +169,195 @@ function GradeEntryEditor({
                         </Select>
                         <InputError message={errors.student_id} />
                     </div>
-                </CardContent>
-            </Card>
-
-            {selectedStudentId !== null && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Unit Grades</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-4">
-                        <Alert className="border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
-                            <Info className="size-4" />
-                            <AlertDescription>
-                                Grades are restricted to Pass, Merit, and
-                                Distinction (FR16). Weights are applied
-                                automatically: Pass = 0.5, Merit = 0.75,
-                                Distinction = 1.0.
-                            </AlertDescription>
-                        </Alert>
-
-                        {errorMessages.length > 0 && (
-                            <Alert variant="destructive" role="alert">
-                                <AlertDescription>
-                                    <ul className="list-inside list-disc">
-                                        {errorMessages.map((message) => (
-                                            <li key={message}>{message}</li>
-                                        ))}
-                                    </ul>
-                                </AlertDescription>
-                            </Alert>
-                        )}
-
-                        {units.length === 0 ? (
-                            <p className="py-6 text-center text-sm text-muted-foreground">
-                                This student's course has no units yet.
-                            </p>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full min-w-[560px] text-sm">
-                                    <thead>
-                                        <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
-                                            <th className="pb-2">Unit</th>
-                                            <th className="pb-2 text-right">
-                                                Credits
-                                            </th>
-                                            <th className="pb-2 text-right">
-                                                Level
-                                            </th>
-                                            <th className="pb-2 pl-4">Grade</th>
-                                            <th className="pb-2 text-right">
-                                                Weight
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {units.map((unit) => {
-                                            const grade = grades[unit.id] ?? '';
-                                            const isChanged =
-                                                grade !==
-                                                (saved[unit.id] ?? '');
-
-                                            return (
-                                                <tr
-                                                    key={unit.id}
-                                                    className={`border-b border-ems-border/60 last:border-0 ${
-                                                        isChanged
-                                                            ? 'bg-amber-50/60 dark:bg-amber-950/30'
-                                                            : ''
-                                                    }`}
-                                                >
-                                                    <td className="py-2">
-                                                        <span className="font-medium">
-                                                            {unit.unit_code}
-                                                        </span>{' '}
-                                                        {unit.unit_title}
-                                                    </td>
-                                                    <td className="py-2 text-right">
-                                                        {unit.credit_value}
-                                                    </td>
-                                                    <td className="py-2 text-right">
-                                                        {unit.level}
-                                                    </td>
-                                                    <td className="py-2 pl-4">
-                                                        <div className="flex items-center gap-1">
-                                                            <Select
-                                                                value={grade}
-                                                                onValueChange={(
-                                                                    value,
-                                                                ) =>
-                                                                    setGrade(
-                                                                        unit.id,
-                                                                        value as GradeValue,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <SelectTrigger
-                                                                    className="h-8 w-36"
-                                                                    aria-label={`Grade for ${unit.unit_code}`}
-                                                                >
-                                                                    <SelectValue placeholder="Not graded" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    {GRADE_VALUES.map(
-                                                                        (
-                                                                            value,
-                                                                        ) => (
-                                                                            <SelectItem
-                                                                                key={
-                                                                                    value
-                                                                                }
-                                                                                value={
-                                                                                    value
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    value
-                                                                                }
-                                                                            </SelectItem>
-                                                                        ),
-                                                                    )}
-                                                                </SelectContent>
-                                                            </Select>
-                                                            {grade !== '' && (
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="size-8"
-                                                                    title="Clear grade"
-                                                                    aria-label={`Clear grade for ${unit.unit_code}`}
-                                                                    onClick={() =>
-                                                                        setGrade(
-                                                                            unit.id,
-                                                                            '',
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <X className="size-4 text-ems-secondary" />
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-2 text-right font-medium">
-                                                        {grade === ''
-                                                            ? '—'
-                                                            : GRADE_WEIGHTS[
-                                                                  grade
-                                                              ].toFixed(2)}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                    {selectedStudent && units.length > 0 && (
+                        <div className="md:pb-1">
+                            <div className="mb-1.5 flex justify-between text-xs text-ems-secondary">
+                                <span>{selectedStudent.course.name}</span>
+                                <span className="font-semibold text-ems-on-surface">
+                                    {gradedCount} of {units.length} units graded
+                                </span>
                             </div>
-                        )}
-
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <p className="text-sm text-muted-foreground">
-                                {gradedCount} of {units.length} units graded
-                                {dirty && (
-                                    <span className="ml-2 font-medium text-amber-700 dark:text-amber-300">
-                                        · {changed.length} unsaved{' '}
-                                        {changed.length === 1
-                                            ? 'change'
-                                            : 'changes'}
-                                    </span>
-                                )}
-                            </p>
-                            <div className="flex gap-2">
-                                {dirty && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        disabled={processing}
-                                        onClick={() => {
-                                            setGrades(saved);
-                                            setErrors({});
-                                        }}
-                                    >
-                                        Discard
-                                    </Button>
-                                )}
-                                <Button
-                                    onClick={save}
-                                    disabled={!dirty || processing}
-                                    className="bg-ems-primary hover:bg-ems-primary-container"
-                                >
-                                    {processing && <Spinner />}
-                                    Save Grades
-                                </Button>
-                            </div>
+                            <ProgressBar
+                                value={gradedCount}
+                                max={units.length}
+                                tone={
+                                    gradedCount === units.length
+                                        ? 'emerald'
+                                        : 'primary'
+                                }
+                                label={`${gradedCount} of ${units.length} units graded`}
+                            />
                         </div>
-                    </CardContent>
-                </Card>
+                    )}
+                </div>
+            </EmsCard>
+
+            {selectedStudentId === null ? (
+                <EmsCard delay={2}>
+                    <EmptyState
+                        icon={ClipboardEdit}
+                        title="Choose a student to enter grades"
+                        description="Only the units on the student's own course are listed. Grades are Pass, Merit or Distinction, and their weights (0.5, 0.75, 1.0) are applied automatically."
+                    />
+                </EmsCard>
+            ) : (
+                <EmsCard delay={2} className="overflow-hidden">
+                    <EmsCardHeader
+                        title="Unit Grades"
+                        description="Pass = 0.5 · Merit = 0.75 · Distinction = 1.0. Changed rows are highlighted until saved."
+                        actions={
+                            <SearchInput
+                                value={query}
+                                onChange={setQuery}
+                                placeholder="Filter units…"
+                            />
+                        }
+                    />
+
+                    {errorMessages.length > 0 && (
+                        <div
+                            role="alert"
+                            className="mx-4 mt-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 sm:mx-6 dark:border-red-800 dark:bg-red-950 dark:text-red-200"
+                        >
+                            <ul className="list-inside list-disc">
+                                {errorMessages.map((message) => (
+                                    <li key={message}>{message}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {units.length === 0 ? (
+                        <EmptyState
+                            icon={ClipboardEdit}
+                            title="This student's course has no units yet."
+                        />
+                    ) : (
+                        <ul className="divide-y divide-ems-border/50">
+                            {results.length === 0 && (
+                                <li className="px-6 py-10 text-center text-sm text-ems-secondary">
+                                    No units match “{query}”.
+                                </li>
+                            )}
+                            {results.map((unit) => {
+                                const grade = grades[unit.id] ?? '';
+                                const isChanged =
+                                    grade !== (saved[unit.id] ?? '');
+
+                                return (
+                                    <li
+                                        key={unit.id}
+                                        className={`flex flex-col gap-2 px-4 py-3 transition-colors sm:flex-row sm:items-center sm:gap-4 sm:px-6 ${
+                                            isChanged
+                                                ? 'bg-ems-amber/10'
+                                                : 'hover:bg-white/40 dark:hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-sm">
+                                                <span className="font-semibold">
+                                                    {unit.unit_code}
+                                                </span>{' '}
+                                                {unit.unit_title}
+                                            </p>
+                                            <p className="text-xs text-ems-secondary">
+                                                {unit.credit_value} credits ·
+                                                Level {unit.level}
+                                                {isChanged && (
+                                                    <span className="ml-2 font-semibold text-ems-amber">
+                                                        unsaved
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Select
+                                                value={grade}
+                                                onValueChange={(value) =>
+                                                    setGrade(
+                                                        unit.id,
+                                                        value as GradeValue,
+                                                    )
+                                                }
+                                            >
+                                                <SelectTrigger
+                                                    className="h-9 w-40 bg-ems-surface"
+                                                    aria-label={`Grade for ${unit.unit_code}`}
+                                                >
+                                                    <SelectValue placeholder="Not graded" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {GRADE_VALUES.map(
+                                                        (value) => (
+                                                            <SelectItem
+                                                                key={value}
+                                                                value={value}
+                                                            >
+                                                                {value}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                            <span className="w-10 text-right text-sm font-medium tabular-nums">
+                                                {grade === ''
+                                                    ? '—'
+                                                    : GRADE_WEIGHTS[
+                                                          grade
+                                                      ].toFixed(2)}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className={`size-8 ${grade === '' ? 'invisible' : ''}`}
+                                                title="Clear grade"
+                                                aria-label={`Clear grade for ${unit.unit_code}`}
+                                                onClick={() =>
+                                                    setGrade(unit.id, '')
+                                                }
+                                            >
+                                                <X className="size-4 text-ems-secondary" />
+                                            </Button>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+                </EmsCard>
+            )}
+
+            {dirty && (
+                <div className="fixed inset-x-0 bottom-0 z-30 border-t border-ems-border bg-ems-surface/90 backdrop-blur-md lg:left-60">
+                    <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
+                        <p className="text-sm font-medium">
+                            {changed.length} unsaved{' '}
+                            {changed.length === 1 ? 'change' : 'changes'}
+                        </p>
+                        <div className="flex gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={processing}
+                                onClick={() => {
+                                    setGrades(saved);
+                                    setErrors({});
+                                }}
+                            >
+                                Discard
+                            </Button>
+                            <Button
+                                onClick={save}
+                                disabled={processing}
+                                className="bg-ems-primary hover:bg-ems-primary-container"
+                            >
+                                {processing && <Spinner />}
+                                Save grades
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

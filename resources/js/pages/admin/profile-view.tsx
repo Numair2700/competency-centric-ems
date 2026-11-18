@@ -1,12 +1,24 @@
-import { Head, useForm } from '@inertiajs/react';
-import { RefreshCw } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { ProfileHistory } from '@/components/ems/profile-history';
+import {
+    EmsCard,
+    EmsCardHeader,
+    EmsPill,
+    ScoreBars,
+} from '@/components/ems/ui';
 import RadarChart from '@/components/radar-chart';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import profiles from '@/routes/admin/profiles';
-import type { CompetencyScoreRow, RadarDataPoint } from '@/types/ems';
+import type {
+    PreviousProfile,
+    ProfileHistoryItem,
+    ProfileSummary,
+} from '@/types/ems';
 
 type DerivationRow = {
     unit_code: string;
@@ -15,201 +27,260 @@ type DerivationRow = {
     grade: string;
     weight: number;
     mapping_weight: number;
+    sfia_level?: number | null;
     contribution: number;
 };
 
 type Props = {
-    profile: {
+    student: {
         id: number;
-        generated_at: string;
-        radar_data: RadarDataPoint[];
-        student: {
-            id: number;
-            name: string;
-            student_number: string;
-            course: string;
-        };
-        scores: CompetencyScoreRow[];
+        name: string;
+        student_number: string;
+        course: string;
+        level: string;
     };
+    profile: ProfileSummary;
+    previous: PreviousProfile | null;
+    history: ProfileHistoryItem[];
     derivation: { skill_code: string; units: DerivationRow[] }[];
 };
 
-export default function ProfileView({ profile, derivation }: Props) {
-    const recalculate = useForm({ student_id: String(profile.student.id) });
+export default function ProfileView({
+    student,
+    profile,
+    previous,
+    history,
+    derivation,
+}: Props) {
+    const recalculate = useForm({ student_id: String(student.id) });
+    const [compare, setCompare] = useState(previous !== null);
+    const isLatest = history[0]?.id === profile.id;
+    const skillNames = Object.fromEntries(
+        profile.radar_data.map((point) => [point.skill_code, point.skill_name]),
+    );
 
     return (
         <>
-            <Head title={`Profile — ${profile.student.name}`} />
+            <Head title={`Profile — ${student.name}`} />
             <div className="flex flex-col gap-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <h1 className="text-xl font-semibold">
-                            {profile.student.name}{' '}
-                            <span className="text-muted-foreground">
-                                · {profile.student.student_number}
-                            </span>
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            {profile.student.course} · Generated{' '}
-                            {profile.generated_at}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Badge variant="secondary">
-                            Admin View · Read-only for Students
-                        </Badge>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={recalculate.processing}
-                            onClick={() =>
-                                recalculate.post(profiles.store.url())
-                            }
+                        <Link
+                            href={profiles.index.url()}
+                            className="mb-2 inline-flex items-center gap-1 text-xs font-medium text-ems-secondary hover:text-ems-primary"
                         >
-                            {recalculate.processing ? (
-                                <Spinner />
-                            ) : (
-                                <RefreshCw className="size-4" />
+                            <ArrowLeft className="size-3.5" />
+                            All students
+                        </Link>
+                        <h2 className="text-xl font-semibold">
+                            {student.name}{' '}
+                            <span className="font-normal text-ems-secondary">
+                                · {student.student_number}
+                            </span>
+                        </h2>
+                        <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ems-secondary">
+                            {student.course} <EmsPill>{student.level}</EmsPill>
+                            <span>· Generated {profile.generated_at}</span>
+                            {!isLatest && (
+                                <span className="rounded bg-ems-amber/10 px-2 py-0.5 text-xs font-semibold text-ems-amber">
+                                    Older profile
+                                </span>
                             )}
-                            Recalculate
-                        </Button>
-                    </div>
-                </div>
-
-                <div className="grid gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Competency Radar
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="mx-auto h-96">
-                                <RadarChart data={profile.radar_data} />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Score Breakdown
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
-                                        <th className="pb-2">SFIA Skill</th>
-                                        <th className="pb-2 text-right">Raw</th>
-                                        <th className="pb-2 text-right">
-                                            Normalised
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {profile.scores.map((score) => (
-                                        <tr
-                                            key={score.skill_code}
-                                            className="border-b border-ems-border/60 last:border-0"
-                                        >
-                                            <td className="py-2">
-                                                <span className="font-medium">
-                                                    {score.skill_code}
-                                                </span>{' '}
-                                                <span className="text-muted-foreground">
-                                                    {score.skill_name}
-                                                </span>
-                                            </td>
-                                            <td className="py-2 text-right">
-                                                {score.raw_score}
-                                            </td>
-                                            <td className="py-2 text-right font-semibold text-ems-primary">
-                                                {score.normalised_score}%
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            Score Derivation (FR14 — how each score was
-                            calculated)
-                        </CardTitle>
-                        <p className="text-xs text-muted-foreground">
-                            Contribution per unit = credits × grade weight (Pass
-                            0.5 · Merit 0.75 · Distinction 1.0) × mapping
-                            weight. Figures are the inputs recorded when this
-                            profile was generated.
                         </p>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-4">
-                        {derivation.map((skill) => (
-                            <div key={skill.skill_code}>
-                                <h3 className="mb-1 text-sm font-semibold">
-                                    {skill.skill_code}
-                                </h3>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full min-w-[560px] text-sm">
-                                        <thead>
-                                            <tr className="border-b border-ems-border text-left text-xs font-semibold text-ems-secondary/60 uppercase">
-                                                <th className="pb-1">Unit</th>
-                                                <th className="pb-1 text-right">
-                                                    Credits
-                                                </th>
-                                                <th className="pb-1 text-right">
-                                                    Grade
-                                                </th>
-                                                <th className="pb-1 text-right">
-                                                    Grade wt.
-                                                </th>
-                                                <th className="pb-1 text-right">
-                                                    Mapping wt.
-                                                </th>
-                                                <th className="pb-1 text-right">
-                                                    Contribution
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {skill.units.map((unit) => (
-                                                <tr
-                                                    key={`${skill.skill_code}-${unit.unit_code}`}
-                                                    className="border-b border-ems-border/60 last:border-0"
-                                                >
-                                                    <td className="py-1.5">
-                                                        {unit.unit_code}{' '}
-                                                        {unit.unit_title}
-                                                    </td>
-                                                    <td className="py-1.5 text-right">
-                                                        {unit.credit_value}
-                                                    </td>
-                                                    <td className="py-1.5 text-right">
-                                                        {unit.grade}
-                                                    </td>
-                                                    <td className="py-1.5 text-right">
-                                                        {unit.weight}
-                                                    </td>
-                                                    <td className="py-1.5 text-right">
-                                                        {unit.mapping_weight}
-                                                    </td>
-                                                    <td className="py-1.5 text-right font-medium">
-                                                        {unit.contribution}
-                                                    </td>
+                    </div>
+                    <Button
+                        variant="outline"
+                        disabled={recalculate.processing}
+                        onClick={() => recalculate.post(profiles.store.url())}
+                        title="Generate a new profile from the student's current grades"
+                    >
+                        {recalculate.processing ? (
+                            <Spinner />
+                        ) : (
+                            <RefreshCw className="size-4" />
+                        )}
+                        Recalculate
+                    </Button>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-5">
+                    <EmsCard
+                        delay={1}
+                        className="overflow-hidden lg:col-span-3"
+                    >
+                        <EmsCardHeader
+                            title="Competency Radar"
+                            description="One axis per SFIA skill on the student's course. Skills marked (n/a) have no graded unit yet."
+                            actions={
+                                previous && (
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            id="compare"
+                                            checked={compare}
+                                            onCheckedChange={(value) =>
+                                                setCompare(value === true)
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor="compare"
+                                            className="text-xs"
+                                        >
+                                            Compare with {previous.generated_at}
+                                        </Label>
+                                    </div>
+                                )
+                            }
+                        />
+                        <div className="h-80 p-4 sm:h-[26rem] sm:p-6">
+                            <RadarChart
+                                data={profile.radar_data}
+                                previous={compare ? previous?.radar_data : null}
+                                previousLabel={`Previous (${previous?.generated_at})`}
+                            />
+                        </div>
+                    </EmsCard>
+
+                    <EmsCard
+                        delay={2}
+                        className="overflow-hidden lg:col-span-2"
+                    >
+                        <EmsCardHeader
+                            title="Scores"
+                            description={
+                                previous
+                                    ? 'Normalised score, with change since the previous profile.'
+                                    : 'Normalised score per assessed skill.'
+                            }
+                        />
+                        <div className="p-4 sm:p-6">
+                            <ScoreBars
+                                scores={profile.scores}
+                                showChange={previous !== null}
+                            />
+                        </div>
+                    </EmsCard>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-5">
+                    <EmsCard
+                        delay={3}
+                        className="overflow-hidden lg:col-span-3"
+                    >
+                        <EmsCardHeader
+                            title="Score Derivation"
+                            description="Contribution = credits × grade weight (Pass 0.5 · Merit 0.75 · Distinction 1.0) × mapping weight. Inputs as recorded when this profile was generated."
+                        />
+                        <div className="divide-y divide-ems-border/60">
+                            {derivation.map((skill) => (
+                                <details
+                                    key={skill.skill_code}
+                                    className="group"
+                                >
+                                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 hover:bg-white/40 sm:px-6 dark:hover:bg-white/5 [&::-webkit-details-marker]:hidden">
+                                        <span className="flex min-w-0 items-center gap-2 text-sm">
+                                            <ChevronRight className="size-4 shrink-0 text-ems-secondary transition-transform group-open:rotate-90" />
+                                            <span className="font-semibold">
+                                                {skill.skill_code}
+                                            </span>
+                                            <span className="truncate text-ems-secondary">
+                                                {skillNames[skill.skill_code]}
+                                            </span>
+                                        </span>
+                                        <span className="shrink-0 text-xs text-ems-secondary">
+                                            {skill.units.length}{' '}
+                                            {skill.units.length === 1
+                                                ? 'unit'
+                                                : 'units'}
+                                        </span>
+                                    </summary>
+                                    <div className="overflow-x-auto px-4 pb-4 sm:px-6">
+                                        <table className="w-full min-w-[560px] text-sm">
+                                            <thead>
+                                                <tr className="border-b border-ems-border text-left text-[11px] font-semibold text-ems-secondary/70 uppercase">
+                                                    <th className="py-2">
+                                                        Unit
+                                                    </th>
+                                                    <th className="py-2 text-right">
+                                                        Credits
+                                                    </th>
+                                                    <th className="py-2 text-right">
+                                                        Grade
+                                                    </th>
+                                                    <th className="py-2 text-right">
+                                                        Grade wt.
+                                                    </th>
+                                                    <th className="py-2 text-right">
+                                                        Mapping wt.
+                                                    </th>
+                                                    <th className="py-2 text-right">
+                                                        SFIA lvl
+                                                    </th>
+                                                    <th className="py-2 text-right">
+                                                        Contribution
+                                                    </th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        ))}
-                    </CardContent>
-                </Card>
+                                            </thead>
+                                            <tbody>
+                                                {skill.units.map((unit) => (
+                                                    <tr
+                                                        key={`${skill.skill_code}-${unit.unit_code}`}
+                                                        className="border-b border-ems-border/50 last:border-0"
+                                                    >
+                                                        <td className="py-1.5">
+                                                            <span className="font-medium">
+                                                                {unit.unit_code}
+                                                            </span>{' '}
+                                                            <span className="text-ems-secondary">
+                                                                {
+                                                                    unit.unit_title
+                                                                }
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-1.5 text-right tabular-nums">
+                                                            {unit.credit_value}
+                                                        </td>
+                                                        <td className="py-1.5 text-right">
+                                                            {unit.grade}
+                                                        </td>
+                                                        <td className="py-1.5 text-right tabular-nums">
+                                                            {unit.weight}
+                                                        </td>
+                                                        <td className="py-1.5 text-right tabular-nums">
+                                                            {
+                                                                unit.mapping_weight
+                                                            }
+                                                        </td>
+                                                        <td className="py-1.5 text-right tabular-nums">
+                                                            {unit.sfia_level ??
+                                                                '—'}
+                                                        </td>
+                                                        <td className="py-1.5 text-right font-semibold tabular-nums">
+                                                            {unit.contribution}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </details>
+                            ))}
+                        </div>
+                    </EmsCard>
+
+                    <EmsCard
+                        delay={4}
+                        className="overflow-hidden lg:col-span-2"
+                    >
+                        <EmsCardHeader
+                            title="Profile History"
+                            description={`${history.length} ${history.length === 1 ? 'profile' : 'profiles'} generated for this student.`}
+                        />
+                        <ProfileHistory
+                            history={history}
+                            href={(id) => profiles.show.url(id)}
+                        />
+                    </EmsCard>
+                </div>
             </div>
         </>
     );

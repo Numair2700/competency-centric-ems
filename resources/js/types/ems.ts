@@ -2,6 +2,8 @@ export type RadarDataPoint = {
     skill_code: string;
     skill_name: string;
     normalised_score: number;
+    /** False when no graded unit maps to this skill yet (plotted at 0). */
+    assessed?: boolean;
 };
 
 export type CompetencyScoreRow = {
@@ -9,6 +11,28 @@ export type CompetencyScoreRow = {
     skill_name: string;
     raw_score: number;
     normalised_score: number;
+    /** Change in percentage points since the previous profile, if any. */
+    change?: number | null;
+};
+
+export type ProfileSummary = {
+    id: number;
+    generated_at: string;
+    radar_data: RadarDataPoint[];
+    scores: CompetencyScoreRow[];
+};
+
+export type PreviousProfile = {
+    id: number;
+    generated_at: string;
+    radar_data: RadarDataPoint[];
+};
+
+export type ProfileHistoryItem = {
+    id: number;
+    generated_at: string;
+    generated_ago: string;
+    is_current: boolean;
 };
 
 export type AcademicUnit = {

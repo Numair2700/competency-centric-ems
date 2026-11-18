@@ -7,7 +7,15 @@ import {
     FormDialog,
     RowActions,
 } from '@/components/ems/crud';
-import { EmsCard, EmsPill, EmsTable } from '@/components/ems/ui';
+import {
+    EmsCard,
+    EmsCardHeader,
+    EmsPill,
+    EmsTable,
+    NoResultsRow,
+    SearchInput,
+    useSearch,
+} from '@/components/ems/ui';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -40,6 +48,12 @@ export default function Students({ students: studentList, courses }: Props) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<StudentRow | null>(null);
     const form = useForm<StudentForm>(blank);
+    const { query, setQuery, results } = useSearch(studentList, (student) => [
+        student.student_number,
+        student.user?.name,
+        student.user?.email,
+        student.course?.name,
+    ]);
 
     const openAdd = () => {
         setEditing(null);
@@ -75,18 +89,20 @@ export default function Students({ students: studentList, courses }: Props) {
         <>
             <Head title="Students" />
             <EmsCard delay={1} className="overflow-hidden">
-                <div className="flex items-center justify-between border-b border-ems-border/60 bg-white/30 px-6 py-5 dark:bg-white/5">
-                    <div>
-                        <h4 className="text-lg font-semibold">
-                            All Students ({studentList.length})
-                        </h4>
-                        <p className="mt-0.5 text-[13px] text-ems-secondary">
-                            Accounts are created by administrators — students do
-                            not self-register (FR2)
-                        </p>
-                    </div>
-                    <AddButton label="Add Student" onClick={openAdd} />
-                </div>
+                <EmsCardHeader
+                    title={`All Students (${query ? `${results.length} of ` : ''}${studentList.length})`}
+                    description="Student accounts are created by administrators; students do not self-register."
+                    actions={
+                        <>
+                            <SearchInput
+                                value={query}
+                                onChange={setQuery}
+                                placeholder="Search name, number, email, course…"
+                            />
+                            <AddButton label="Add Student" onClick={openAdd} />
+                        </>
+                    }
+                />
                 <EmsTable
                     headers={[
                         'Student Number',
@@ -107,10 +123,16 @@ export default function Students({ students: studentList, courses }: Props) {
                         'right',
                     ]}
                 >
-                    {studentList.map((student) => (
+                    {results.length === 0 && (
+                        <NoResultsRow
+                            colSpan={7}
+                            onClear={() => setQuery('')}
+                        />
+                    )}
+                    {results.map((student) => (
                         <tr
                             key={student.id}
-                            className="transition-colors hover:bg-white/50"
+                            className="transition-colors hover:bg-white/50 dark:hover:bg-white/5"
                         >
                             <td className="px-6 py-4 text-sm font-semibold">
                                 {student.student_number}
@@ -133,6 +155,11 @@ export default function Students({ students: studentList, courses }: Props) {
                             <td className="px-6 py-4">
                                 <RowActions
                                     entityLabel={`student ${student.student_number}`}
+                                    warning={
+                                        student.grade_records_count
+                                            ? `Their login, ${student.grade_records_count} grade records and all competency profiles will also be deleted.`
+                                            : 'Their login and any competency profiles will also be deleted.'
+                                    }
                                     onEdit={() => openEdit(student)}
                                     deleteUrl={
                                         StudentController.destroy(student.id)

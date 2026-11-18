@@ -7,7 +7,15 @@ import {
     FormDialog,
     RowActions,
 } from '@/components/ems/crud';
-import { EmsCard, EmsPill, EmsTable } from '@/components/ems/ui';
+import {
+    EmsCard,
+    EmsCardHeader,
+    EmsPill,
+    EmsTable,
+    NoResultsRow,
+    SearchInput,
+    useSearch,
+} from '@/components/ems/ui';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -46,6 +54,12 @@ export default function Mappings({
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<UnitSkillMapping | null>(null);
     const form = useForm<MappingForm>(blank);
+    const { query, setQuery, results } = useSearch(mappingList, (mapping) => [
+        mapping.unit?.unit_code,
+        mapping.unit?.unit_title,
+        mapping.sfia_skill?.skill_code,
+        mapping.sfia_skill?.skill_name,
+    ]);
 
     const selectedSkill = skills.find(
         (s) => String(s.id) === form.data.sfia_skill_id,
@@ -85,27 +99,34 @@ export default function Mappings({
         <>
             <Head title="Unit-Skill Mappings" />
             <EmsCard delay={1} className="overflow-hidden">
-                <div className="flex items-center justify-between border-b border-ems-border/60 bg-white/30 px-6 py-5 dark:bg-white/5">
-                    <div>
-                        <h4 className="text-lg font-semibold">
-                            All Mappings ({mappingList.length})
-                        </h4>
-                        <p className="mt-0.5 text-[13px] text-ems-secondary">
-                            The unit-to-SFIA catalogue from the document
-                            analysis — the relationship the calculation engine
-                            depends on (FR6, FR17)
-                        </p>
-                    </div>
-                    <AddButton label="Add Mapping" onClick={openAdd} />
-                </div>
+                <EmsCardHeader
+                    title={`All Mappings (${query ? `${results.length} of ` : ''}${mappingList.length})`}
+                    description="Which SFIA skill each unit evidences, at what level and weight. The calculation engine reads these mappings."
+                    actions={
+                        <>
+                            <SearchInput
+                                value={query}
+                                onChange={setQuery}
+                                placeholder="Search unit or skill…"
+                            />
+                            <AddButton label="Add Mapping" onClick={openAdd} />
+                        </>
+                    }
+                />
                 <EmsTable
                     headers={['Unit', 'SFIA Skill', 'SFIA Level', 'Weight', '']}
                     align={['left', 'left', 'center', 'right', 'right']}
                 >
-                    {mappingList.map((mapping) => (
+                    {results.length === 0 && (
+                        <NoResultsRow
+                            colSpan={5}
+                            onClear={() => setQuery('')}
+                        />
+                    )}
+                    {results.map((mapping) => (
                         <tr
                             key={mapping.id}
-                            className="transition-colors hover:bg-white/50"
+                            className="transition-colors hover:bg-white/50 dark:hover:bg-white/5"
                         >
                             <td className="px-6 py-4 text-sm">
                                 <span className="font-semibold">

@@ -6,6 +6,7 @@ use App\Models\CompetencyProfile;
 use App\Models\GradeRecord;
 use App\Models\SfiaSkill;
 use App\Models\Student;
+use App\Models\UnitSkillMapping;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -53,11 +54,15 @@ class CalculationEngine
      *   normalised = (raw_score / max_score) × 100
      *
      * Dual-mapped units contribute to every skill they are mapped to.
+     *
+     * The radar covers every skill mapped to a unit on the student's course,
+     * ordered by skill code, so all students on a course share the same axes.
+     * Skills with no graded unit yet plot at 0 and are flagged unassessed.
      */
     public function calculateProfile(Student $student): CompetencyProfile
     {
         $gradeRecords = $student->gradeRecords()
-            ->with(['unit.unitSkillMappings.sfiaSkill'])
+            ->with(['unit.unitSkillMappings.sfiaLevel'])
             ->get();
 
         /** @var array<int, array{raw: float, max: float}> $totals */
@@ -86,27 +91,40 @@ class CalculationEngine
                     'grade' => $record->grade,
                     'weight' => $gradeWeight,
                     'mapping_weight' => $mapping->mapping_weight,
+                    'sfia_level' => $mapping->sfiaLevel?->responsibility_level,
                     'contribution' => round($credits * $gradeWeight * $mapping->mapping_weight, 2),
                 ];
             }
         }
 
-        $skills = SfiaSkill::whereIn('id', array_keys($totals))->get()->keyBy('id');
+        $courseSkillIds = UnitSkillMapping::query()
+            ->whereIn('unit_id', $student->course->academicUnits()->select('academic_units.id'))
+            ->pluck('sfia_skill_id');
+
+        $skills = SfiaSkill::whereIn('id', $courseSkillIds->merge(array_keys($totals))->unique())
+            ->orderBy('skill_code')
+            ->get()
+            ->keyBy('id');
 
         $derivation = [];
 
-        foreach ($contributions as $skillId => $units) {
-            $derivation[] = ['skill_code' => $skills[$skillId]->skill_code, 'units' => $units];
+        foreach ($skills as $skillId => $skill) {
+            if (isset($contributions[$skillId])) {
+                $derivation[] = ['skill_code' => $skill->skill_code, 'units' => $contributions[$skillId]];
+            }
         }
 
         return DB::transaction(function () use ($student, $totals, $skills, $derivation): CompetencyProfile {
             $radarData = [];
 
-            foreach ($totals as $skillId => $sums) {
+            foreach ($skills as $skillId => $skill) {
+                $sums = $totals[$skillId] ?? null;
+
                 $radarData[] = [
-                    'skill_code' => $skills[$skillId]->skill_code,
-                    'skill_name' => $skills[$skillId]->skill_name,
-                    'normalised_score' => $this->normaliseScore($sums['raw'], $sums['max']),
+                    'skill_code' => $skill->skill_code,
+                    'skill_name' => $skill->skill_name,
+                    'normalised_score' => $sums ? $this->normaliseScore($sums['raw'], $sums['max']) : 0.0,
+                    'assessed' => $sums !== null,
                 ];
             }
 

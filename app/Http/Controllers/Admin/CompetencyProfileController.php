@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CompetencyProfile;
 use App\Models\Student;
 use App\Services\CalculationEngine;
+use App\Support\CompetencyProfilePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,13 +20,18 @@ class CompetencyProfileController extends Controller
     public function __construct(private readonly CalculationEngine $engine) {}
 
     /**
-     * Generate Profile screen: student selector with grade completeness info.
+     * Generate Profile screen: every student with grade progress and their
+     * latest profile, loaded in a fixed number of queries.
      */
     public function index(): Response
     {
         return Inertia::render('admin/generate-profile', [
-            'students' => Student::with(['user:id,name', 'course:id,name,level'])
-                ->withCount('gradeRecords')
+            'students' => Student::with([
+                'user:id,name',
+                'course' => fn ($query) => $query->select('id', 'name', 'level')->withCount('academicUnits'),
+                'latestProfile:competency_profiles.id,competency_profiles.student_id,generated_at',
+            ])
+                ->withCount(['gradeRecords', 'competencyProfiles'])
                 ->orderBy('student_number')
                 ->get()
                 ->map(fn (Student $student) => [
@@ -35,11 +41,13 @@ class CompetencyProfileController extends Controller
                     'course' => $student->course->name,
                     'level' => $student->course->level,
                     'graded_units' => $student->grade_records_count,
-                    'total_units' => $student->course->academicUnits()->count(),
-                    'latest_profile_at' => $student->competencyProfiles()
-                        ->latest('generated_at')
-                        ->value('generated_at')
-                        ?->format('d M Y, H:i'),
+                    'total_units' => $student->course->academic_units_count,
+                    'profiles_count' => $student->competency_profiles_count,
+                    'latest_profile' => $student->latestProfile ? [
+                        'id' => $student->latestProfile->id,
+                        'generated_at' => $student->latestProfile->generated_at->format('d M Y, H:i'),
+                        'generated_ago' => $student->latestProfile->generated_at->diffForHumans(),
+                    ] : null,
                 ]),
         ]);
     }
@@ -73,26 +81,19 @@ class CompetencyProfileController extends Controller
      */
     public function show(CompetencyProfile $profile): Response
     {
-        $profile->load(['student.user', 'student.course', 'scores.sfiaSkill']);
+        $profile->load(['student.user', 'student.course']);
+
+        $presented = CompetencyProfilePresenter::present($profile);
 
         return Inertia::render('admin/profile-view', [
-            'profile' => [
-                'id' => $profile->id,
-                'generated_at' => $profile->generated_at->format('d M Y, H:i'),
-                'radar_data' => $profile->radar_data,
-                'student' => [
-                    'id' => $profile->student->id,
-                    'name' => $profile->student->user->name,
-                    'student_number' => $profile->student->student_number,
-                    'course' => $profile->student->course->name,
-                ],
-                'scores' => $profile->scores->map(fn ($score) => [
-                    'skill_code' => $score->sfiaSkill->skill_code,
-                    'skill_name' => $score->sfiaSkill->skill_name,
-                    'raw_score' => $score->raw_score,
-                    'normalised_score' => $score->normalised_score,
-                ]),
+            'student' => [
+                'id' => $profile->student->id,
+                'name' => $profile->student->user->name,
+                'student_number' => $profile->student->student_number,
+                'course' => $profile->student->course->name,
+                'level' => $profile->student->course->level,
             ],
+            ...$presented,
             'derivation' => $profile->derivation ?? $this->scoreDerivation($profile),
         ]);
     }
@@ -108,7 +109,7 @@ class CompetencyProfileController extends Controller
     private function scoreDerivation(CompetencyProfile $profile): array
     {
         $records = $profile->student->gradeRecords()
-            ->with(['unit.unitSkillMappings.sfiaSkill'])
+            ->with(['unit.unitSkillMappings.sfiaSkill', 'unit.unitSkillMappings.sfiaLevel'])
             ->get();
 
         $derivation = [];
@@ -122,6 +123,7 @@ class CompetencyProfileController extends Controller
                     'grade' => $record->grade,
                     'weight' => $record->weight,
                     'mapping_weight' => $mapping->mapping_weight,
+                    'sfia_level' => $mapping->sfiaLevel?->responsibility_level,
                     'contribution' => round($record->unit->credit_value * $record->weight * $mapping->mapping_weight, 2),
                 ];
             }

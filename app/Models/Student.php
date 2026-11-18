@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
@@ -39,5 +40,13 @@ class Student extends Model
     public function competencyProfiles(): HasMany
     {
         return $this->hasMany(CompetencyProfile::class);
+    }
+
+    /**
+     * The student's most recently generated competency profile.
+     */
+    public function latestProfile(): HasOne
+    {
+        return $this->hasOne(CompetencyProfile::class)->latestOfMany('generated_at');
     }
 }

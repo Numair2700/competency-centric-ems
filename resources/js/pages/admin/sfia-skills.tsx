@@ -8,7 +8,14 @@ import {
     FormDialog,
     RowActions,
 } from '@/components/ems/crud';
-import { EmsCard, EmsTable } from '@/components/ems/ui';
+import {
+    EmsCard,
+    EmsCardHeader,
+    EmsTable,
+    NoResultsRow,
+    SearchInput,
+    useSearch,
+} from '@/components/ems/ui';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,6 +43,11 @@ export default function SfiaSkills({ skills }: Props) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<SfiaSkill | null>(null);
     const form = useForm<SkillForm>(blank);
+    const { query, setQuery, results } = useSearch(skills, (skill) => [
+        skill.skill_code,
+        skill.skill_name,
+        skill.description,
+    ]);
 
     const openAdd = () => {
         setEditing(null);
@@ -93,17 +105,20 @@ export default function SfiaSkills({ skills }: Props) {
         <>
             <Head title="SFIA Skills" />
             <EmsCard delay={1} className="overflow-hidden">
-                <div className="flex items-center justify-between border-b border-ems-border/60 bg-white/30 px-6 py-5 dark:bg-white/5">
-                    <div>
-                        <h4 className="text-lg font-semibold">
-                            All Skills ({skills.length})
-                        </h4>
-                        <p className="mt-0.5 text-[13px] text-ems-secondary">
-                            SFIA 9 skills and their responsibility levels (FR5)
-                        </p>
-                    </div>
-                    <AddButton label="Add Skill" onClick={openAdd} />
-                </div>
+                <EmsCardHeader
+                    title={`All Skills (${query ? `${results.length} of ` : ''}${skills.length})`}
+                    description="SFIA 9 skills and their responsibility levels."
+                    actions={
+                        <>
+                            <SearchInput
+                                value={query}
+                                onChange={setQuery}
+                                placeholder="Search code or name…"
+                            />
+                            <AddButton label="Add Skill" onClick={openAdd} />
+                        </>
+                    }
+                />
                 <EmsTable
                     headers={[
                         'Code',
@@ -114,10 +129,16 @@ export default function SfiaSkills({ skills }: Props) {
                     ]}
                     align={['left', 'left', 'left', 'right', 'right']}
                 >
-                    {skills.map((skill) => (
+                    {results.length === 0 && (
+                        <NoResultsRow
+                            colSpan={5}
+                            onClear={() => setQuery('')}
+                        />
+                    )}
+                    {results.map((skill) => (
                         <tr
                             key={skill.id}
-                            className="transition-colors hover:bg-white/50"
+                            className="transition-colors hover:bg-white/50 dark:hover:bg-white/5"
                         >
                             <td className="px-6 py-4 text-sm font-semibold">
                                 {skill.skill_code}

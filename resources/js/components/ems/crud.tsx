@@ -119,10 +119,13 @@ export function RowActions({
     onEdit,
     deleteUrl,
     entityLabel,
+    warning,
 }: {
     onEdit: () => void;
     deleteUrl: string;
     entityLabel: string;
+    /** Extra consequence spelled out in the confirmation dialog. */
+    warning?: string;
 }) {
     const [confirming, setConfirming] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -135,6 +138,7 @@ export function RowActions({
                 className="size-8"
                 onClick={onEdit}
                 title="Edit"
+                aria-label={`Edit ${entityLabel}`}
             >
                 <Pencil className="size-4 text-ems-secondary" />
             </Button>
@@ -144,6 +148,7 @@ export function RowActions({
                 className="size-8"
                 onClick={() => setConfirming(true)}
                 title="Delete"
+                aria-label={`Delete ${entityLabel}`}
             >
                 <Trash2 className="size-4 text-ems-amber" />
             </Button>
@@ -156,7 +161,8 @@ export function RowActions({
                             Delete {entityLabel}?
                         </DialogTitle>
                         <DialogDescription>
-                            This action cannot be undone.
+                            {warning ? `${warning} ` : ''}This action cannot be
+                            undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

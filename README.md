@@ -60,7 +60,7 @@ All seeded accounts use the password **`password`**. Role is detected automatica
 
 ## Testing
 
-The project has 82 automated tests (Pest/PHPUnit) covering the calculation engine, grade validation, admin CRUD, role-based access, and profile generation. Run them with:
+The project has 86 automated tests (Pest/PHPUnit) covering the calculation engine, grade validation, admin CRUD, role-based access, and profile generation. Run them with:
 
 ```bash
 php artisan test
